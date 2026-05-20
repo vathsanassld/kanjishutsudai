@@ -54,9 +54,9 @@
             <span class="text-xl">🌸</span>
             <h1 class="font-extrabold text-sm text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-indigo-400 tracking-wide">KANJI CHALLENGE</h1>
         </div>
-        <div id="live-timer-container" class="hidden flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/60 text-xs">
+        <div id="live-timer-container" class="hidden flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/60 text-ms">
             <i class="fa-solid fa-clock text-amber-400 animate-pulse"></i>
-            <span id="live-timer" class="font-mono text-amber-300 font-bold text-xs">00:00</span>
+            <span id="live-timer" class="font-mono text-amber-300 font-bold text-ms">00:00</span>
         </div>
     </header>
 
@@ -70,12 +70,12 @@
                     <span class="text-3xl text-white font-black">漢字</span>
                 </div>
                 <h2 class="text-xl font-black text-white">Kanji Master Game</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Please log in with student details to begin.</p>
+                <p class="text-ms text-slate-400 mt-0.5">Please log in with student details to begin.</p>
             </div>
 
             <!-- Custom Security/Anti-Cheat Notice -->
             <div class="bg-indigo-950/40 border border-indigo-800/50 rounded-xl p-3 mb-4 text-[11px] text-indigo-300 flex items-start gap-2">
-                <i class="fa-solid fa-shield-halved text-xs text-indigo-400 mt-0.5"></i>
+                <i class="fa-solid fa-shield-halved text-ms text-indigo-400 mt-0.5"></i>
                 <div>
                     <span class="font-bold block mb-0.5">ຄຳເຕືອນຄວາມປອດໄພ / Anti-Cheat Active</span>
                     The app restricts copying, right-clicks, and console viewing to ensure a fair test.
@@ -87,7 +87,7 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Student ID (ລະຫັດນັກສຶກສາ)</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-ms">
                             <i class="fa-solid fa-id-card"></i>
                         </span>
                         <input type="text" id="player-id" placeholder="ຕົວຢ່າງ: STU12345"
@@ -98,7 +98,7 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Full Name (ຊື່ ແລະ ນາມສະກຸນ)</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-ms">
                             <i class="fa-solid fa-user"></i>
                         </span>
                         <input type="text" id="player-name" placeholder="ຕົວຢ່າງ: ສົມສັກ ແກ້ວມະນີ"
@@ -108,7 +108,7 @@
             </div>
 
             <!-- Form Validation Alert -->
-            <div id="registration-error" class="hidden text-rose-400 text-xs mt-2.5 flex items-center gap-1.5 bg-rose-950/30 border border-rose-900/40 p-2 rounded-lg">
+            <div id="registration-error" class="hidden text-rose-400 text-ms mt-2.5 flex items-center gap-1.5 bg-rose-950/30 border border-rose-900/40 p-2 rounded-lg">
                 <i class="fa-solid fa-circle-exclamation"></i>
                 <span id="reg-error-msg">ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບຖ້ວນທັງສອງຊ່ອງ!</span>
             </div>
@@ -124,7 +124,7 @@
         <section id="screen-lessons" class="hidden flex-grow flex flex-col justify-center animate-pop-in py-2">
             <div class="mb-4 text-center">
                 <h3 class="text-lg font-extrabold text-white">ເລືອກບົດຮຽນ / Choose Lesson</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Select a level unit to test your skills</p>
+                <p class="text-ms text-slate-400 mt-0.5">Select a level unit to test your skills</p>
             </div>
 
             <div class="space-y-3" id="lessons-list-container">
@@ -187,7 +187,7 @@
             <!-- Bottom Controller Action Row (Saves space) -->
             <div class="mt-3 min-h-[40px] flex items-center justify-center">
                 <button id="btn-next" onclick="advanceNextQuestion()" disabled
-                        class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.98] text-white font-extrabold py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 text-xs">
+                        class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.98] text-white font-extrabold py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 text-ms">
                     <span>ຄຳຖາມຖັດໄປ / Next Question</span>
                     <i class="fa-solid fa-arrow-right-long"></i>
                 </button>
@@ -237,7 +237,7 @@
                 </div>
                 <div class="flex justify-between items-center pb-0">
                     <span class="text-slate-400 font-medium">Total Time (ເວລາທີ່ໃຊ້)</span>
-                    <span id="result-time-used" class="font-bold text-amber-300 font-mono text-xs">01:45</span>
+                    <span id="result-time-used" class="font-bold text-amber-300 font-mono text-ms">01:45</span>
                 </div>
             </div>
 
@@ -266,12 +266,12 @@
             <!-- Control Buttons -->
             <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button onclick="restartActiveLesson()" 
-                        class="bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs">
+                        class="bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-ms">
                     <i class="fa-solid fa-rotate-left"></i>
                     <span>ທົດສອບຄືນ / Retry</span>
                 </button>
                 <button onclick="showScreen('screen-lessons')" 
-                        class="bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs">
+                        class="bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-ms">
                     <i class="fa-solid fa-book-open"></i>
                     <span>ເລືອກບົດໃໝ່ / Lessons</span>
                 </button>
@@ -294,9 +294,9 @@
         </div>
         <div>
             <h4 id="alert-title" class="text-base font-bold text-white">Anti-Cheat Alert</h4>
-            <p id="alert-message" class="text-xs text-slate-300 mt-1">Please focus strictly on your screen inside the classroom context!</p>
+            <p id="alert-message" class="text-ms text-slate-300 mt-1">Please focus strictly on your screen inside the classroom context!</p>
         </div>
-        <button onclick="dismissCustomAlert()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all border border-slate-700/50">
+        <button onclick="dismissCustomAlert()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-ms transition-all border border-slate-700/50">
             Dismiss Warning
         </button>
     </div>
@@ -922,7 +922,7 @@
                     </div>
                     <div>
                         <h4 class="font-bold text-white text-sm">${lesson.title}</h4>
-                        <p class="text-xs text-slate-400 mt-0.5">${count} ຄຳສັບຄັນຈິ / ${count * 2} ຄຳຖາມ</p>
+                        <p class="text-ms text-slate-400 mt-0.5">${count} ຄຳສັບຄັນຈິ / ${count * 2} ຄຳຖາມ</p>
                     </div>
                 </div>
                 <div class="text-indigo-400 text-sm">
@@ -1046,9 +1046,9 @@
             btn.innerHTML = `
                 <span class="flex items-center gap-2.5">
                     <span class="flex items-center justify-center w-5 h-5 rounded-full bg-slate-700/60 text-slate-300 text-[10px] font-bold">${index + 1}</span>
-                    <span class="text-xs font-semibold tracking-wide">${choice}</span>
+                    <span class="text-ms font-semibold tracking-wide">${choice}</span>
                 </span>
-                <i class="fa-regular fa-circle text-slate-500 text-xs"></i>
+                <i class="fa-regular fa-circle text-slate-500 text-ms"></i>
             `;
             optContainer.appendChild(btn);
         });
@@ -1068,7 +1068,7 @@
             buttonElement.innerHTML = `
                 <span class="flex items-center gap-2.5">
                     <span class="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-slate-900 text-[10px] font-black"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-xs tracking-wide">${choice}</span>
+                    <span class="text-ms tracking-wide">${choice}</span>
                 </span>
                 <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
             `;
@@ -1093,7 +1093,7 @@
             buttonElement.innerHTML = `
                 <span class="flex items-center gap-2.5">
                     <span class="flex items-center justify-center w-5 h-5 rounded-full bg-rose-500 text-slate-900 text-[10px] font-black"><i class="fa-solid fa-xmark"></i></span>
-                    <span class="text-xs line-through tracking-wide">${choice}</span>
+                    <span class="text-ms line-through tracking-wide">${choice}</span>
                 </span>
                 <i class="fa-solid fa-circle-xmark text-rose-400 text-sm"></i>
             `;
@@ -1170,9 +1170,9 @@
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-slate-700/30 hover:bg-slate-800/20";
                 tr.innerHTML = `
-                    <td class="p-2 font-bold text-white text-xs font-japanese">${item.kanji}</td>
-                    <td class="p-2 text-indigo-300 font-mono text-xs">${item.reading}</td>
-                    <td class="p-2 text-slate-300 text-xs">${item.lao}</td>
+                    <td class="p-2 font-bold text-white text-ms font-japanese">${item.kanji}</td>
+                    <td class="p-2 text-indigo-300 font-mono text-ms">${item.reading}</td>
+                    <td class="p-2 text-slate-300 text-ms">${item.lao}</td>
                 `;
                 reviewTableBody.appendChild(tr);
             });
