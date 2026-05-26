@@ -1,1228 +1,1961 @@
 <!DOCTYPE html>
-<html lang="lo" class="h-full bg-slate-950 text-slate-100 select-none">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kanji Master Game</title>
-    <!-- Tailwind CSS for high-quality utilities -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for clean, sharp icons -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JFT-Basic Kanji App</title>
+    <!-- FontAwesome สำหรับไอคอนสัญลักษณ์ต่างๆ -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Premium Fonts: Noto Sans Lao for native Lao support & Noto Sans JP for Kanji -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Lao:wght@400;600;700&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Noto Sans JP (คันจิ) และ Sarabun (ภาษาไทย) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Inter', 'Noto Sans Lao', 'Noto Sans JP', sans-serif;
+        :root {
+            --primary: #4A6FA5;
+            --primary-dark: #2F4871;
+            --primary-light: #EBF1FA;
+            --accent: #FF6B6B;
+            --secondary: #1A2536;
+            --success: #2A9D8F;
+            --success-light: #E8F5F3;
+            --danger: #E63946;
+            --danger-light: #FDF2F2;
+            --warning: #F4A261;
+            --warning-light: #FEF6EE;
+            --background: #F3F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #2B2D42;
+            --text-sub: #6C757D;
+            --border: #E8ECF2;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Sarabun', 'Noto Sans JP', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            overflow: hidden; /* ป้องกันการเลื่อนซ้ำซ้อนระดับ Body */
+        }
+
+        /* Container หลักจำลองหน้าจอมือถือ ตรึงขนาดตาม Viewport */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100dvh;
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        @media (min-height: 800px) and (min-width: 480px) {
+            .app-container {
+                height: 90vh;
+                min-height: 800px;
+                border-radius: var(--radius-lg);
+            }
+        }
+
+        /* ส่วนหัวของแอป ถูกตรึงอยู่กับที่ */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom-left-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--radius-lg);
+            box-shadow: 0 4px 20px rgba(74, 111, 165, 0.2);
+            position: relative;
+            flex-shrink: 0; /* ป้องกันการหดตัว */
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* ส่วนเนื้อหาหลัก เลื่อนได้อิสระเฉพาะด้านใน */
+        main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+            background-color: var(--card-bg);
+        }
+
+        /* แถบนำทางด้านล่าง ถูกตรึงอยู่กับที่ */
+        nav {
+            display: flex;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: 6px 0 calc(env(safe-area-inset-bottom) + 6px);
+            flex-shrink: 0; /* ป้องกันการหดตัว */
+            position: relative;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 8px;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .nav-btn i {
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .nav-btn.active i {
+            transform: translateY(-2px);
+        }
+
+        /* การซ่อน/แสดงหน้า */
+        .page {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* สไตล์หน้า รายการคันจิ (List Page) */
+        .kanji-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .kanji-card-index {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 6px;
+        }
+
+        .kanji-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary);
+        }
+
+        .kanji-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            margin-bottom: 10px;
+        }
+
+        .kanji-main {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .kanji-info {
+            flex: 1;
+            margin-left: 14px;
+        }
+
+        .kanji-reading {
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .kanji-meaning {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: bold;
+            background-color: var(--primary-light);
+            padding: 1px 6px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .audio-btn {
+            background: var(--primary-light);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .audio-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .example-box {
+            background: #F8FAFC;
+            border-left: 4px solid var(--primary);
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 4px var(--radius-sm) var(--radius-sm) 4px;
+        }
+
+        .ex-jp {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: var(--secondary);
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .ex-reading {
+            font-size: 0.78rem;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+            font-weight: 500;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .ex-reading i {
+            margin-top: 3px;
+            font-size: 0.75rem;
+            color: var(--primary);
+        }
+
+        .ex-th {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        /* สไตล์หน้า Setup Quiz */
+        .setup-box {
+            text-align: center;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .setup-box .icon-wrapper {
+            font-size: 2.6rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .setup-box h2 {
+            font-size: 1.15rem;
+            margin-bottom: 6px;
+            color: var(--secondary);
+        }
+
+        .setup-box p.setup-desc {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+
+        /* แผงตั้งค่าช่วงข้อสอบแบบใส่ตัวเลข */
+        .config-container {
+            width: 100%;
+            max-width: 340px;
+            background: #F8FAFC;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: left;
+        }
+
+        .config-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .config-field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            outline: none;
+            background-color: white;
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .config-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.15);
+        }
+
+        .range-select-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .range-select-row span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            white-space: nowrap;
+        }
+
+        /* ปุ่มจัดกึ่งกลางหน้าจออย่างสมบูรณ์แบบ */
+        .quiz-action-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            max-width: 280px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(74, 111, 165, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 111, 165, 0.3);
+        }
+
+        /* สไตล์หน้าตัวทำข้อสอบ (Quiz Play) */
+        .quiz-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        .home-btn {
+            border: none;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .home-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .quiz-progress {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
         }
-        .animate-shake {
-            animation: shake 0.2s ease-in-out 0s 2;
+
+        /* สไตล์วงกลมสีเขียว (Maru - ◯) ซ้อนทับ */
+        .maru-overlay-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
         }
+
+        .maru-overlay-container.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .maru-circle {
+            width: 90px;
+            height: 90px;
+            border: 10px solid var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(42, 157, 143, 0.4);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(42, 157, 143, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(42, 157, 143, 0); }
+        }
+
+        .quiz-kanji {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .quiz-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            outline: none;
+            margin-bottom: 12px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .quiz-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.15);
+        }
+
+        /* รูปแบบการ์ดเฉลยความถูกต้องพาร์ทเสียงอ่าน */
+        .success-state-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            background-color: var(--success-light);
+            border: 2px solid var(--success);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 12px;
+        }
+
+        .success-badge {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .success-reading-display {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            background: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(42, 157, 143, 0.08);
+            display: flex;
+            gap: 8px;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .success-reading-display .romaji-sub {
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
         @keyframes popIn {
-            0% { transform: scale(0.95); opacity: 0; }
+            0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .animate-pop-in {
-            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+
+        /* Multiple Choices สำหรับพาร์ทเลือกความหมาย */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+            text-align: left;
+            animation: fadeIn 0.3s ease-out;
         }
-        .glassmorphism {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+
+        .choice-btn {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
         }
-        /* Custom styles to completely block user selection of kanji text */
-        .no-select {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+
+        .choice-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .choice-btn .badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--background);
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .choice-btn.correct {
+            background-color: var(--success-light);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .choice-btn.correct .badge {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .choice-btn.wrong {
+            background-color: var(--danger-light);
+            border-color: var(--danger);
+            color: var(--danger);
+            opacity: 0.85;
+        }
+
+        .choice-btn.wrong .badge {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .hint-box {
+            background: var(--warning-light);
+            color: #b05c1d;
+            border: 1px dashed var(--warning);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: none;
+            animation: fadeIn 0.3s;
+            text-align: left;
+        }
+
+        .feedback-box {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .feedback-box.correct {
+            display: block;
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid rgba(42, 157, 143, 0.2);
+        }
+
+        .feedback-box.wrong {
+            display: block;
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+        }
+
+        /* หน้าจอสรุปผล (Result Screen) */
+        .score-container-dual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 0 auto 20px auto;
+            width: 100%;
+        }
+
+        .score-circle-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            max-width: 140px;
+        }
+
+        .score-circle {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: var(--transition);
+        }
+
+        .score-circle.reading-theme {
+            background: linear-gradient(135deg, var(--primary), #6C92C8);
+            box-shadow: 0 6px 15px rgba(74, 111, 165, 0.25);
+        }
+
+        .score-circle.meaning-theme {
+            background: linear-gradient(135deg, var(--success), #4BD66D);
+            box-shadow: 0 6px 15px rgba(42, 157, 143, 0.25);
+        }
+
+        .score-circle .percent {
+            font-size: 1.55rem;
+            font-weight: 800;
+        }
+
+        .score-circle .label {
+            font-size: 0.58rem;
+            opacity: 0.95;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .circle-title-desc {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--secondary);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* ตารางสถิติเปรียบเทียบในแถบเดียวกัน */
+        .stat-comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .stat-comp-table th, .stat-comp-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-comp-table th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .stat-comp-table td.label-col {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: rgba(0,0,0,0.01);
+            padding-left: 12px;
+        }
+
+        .stat-comp-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* การ์ดสรุปข้อมูลผู้เข้าเรียน */
+        .candidate-card {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            text-align: left;
+            position: relative;
+        }
+
+        .candidate-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        .candidate-header-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .candidate-row {
+            display: flex;
+            margin-bottom: 4px;
+        }
+
+        .candidate-label {
+            width: 110px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .candidate-value {
+            flex: 1;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* ตารางรายงานละเอียดรายข้อสอบ */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            font-size: 0.8rem;
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .report-table th, .report-table td {
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .report-table th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .report-table td {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .report-table td.kanji-cell {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--secondary);
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        /* สไตล์หน้าประวัติสะสมรายวัน (History Page) */
+        .history-summary-box {
+            background: linear-gradient(135deg, var(--primary-light), white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .history-summary-box h3 {
+            color: var(--primary-dark);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .history-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .history-summary-card {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .history-summary-card .val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .history-summary-card .lbl {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .history-list-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-log-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .history-log-card .date {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .history-log-card .user-info {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .history-log-card .scores {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            background: #F8FAFC;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        .clear-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .clear-btn {
+            background-color: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            padding: 10px 18px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .clear-btn:hover {
+            background-color: var(--danger);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .no-data {
+            text-align: center;
+            color: var(--text-sub);
+            padding: 30px 10px;
+            font-size: 0.85rem;
         }
     </style>
 </head>
-<body class="h-full w-full flex flex-col justify-between overflow-x-hidden overflow-y-hidden antialiased bg-slate-950 text-slate-100 no-select" oncontextmenu="return false;">
+<body>
 
-<div class="w-full max-w-md mx-auto h-screen flex flex-col justify-between shadow-2xl bg-slate-900 border-x border-slate-800 relative no-select overflow-hidden">
+    <div class="app-container">
+        <!-- Toast System -->
+        <div id="toast-container" class="toast-container"></div>
 
-    <!-- Header Navigation & Status Bar -->
-    <header class="glassmorphism p-3 border-b border-slate-800 flex justify-between items-center z-10 sticky top-0">
-        <div class="flex items-center gap-2">
-            <span class="text-xl">🌸</span>
-            <h1 class="font-extrabold text-sm text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-indigo-400 tracking-wide">KANJI CHALLENGE</h1>
-        </div>
-        <div id="live-timer-container" class="hidden flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/60 text-ms">
-            <i class="fa-solid fa-clock text-amber-400 animate-pulse"></i>
-            <span id="live-timer" class="font-mono text-amber-300 font-bold text-ms">00:00</span>
-        </div>
-    </header>
+        <header>
+            <h1 id="app-title">JFT-Basic Kanji</h1>
+            <p id="app-subtitle">ฝึกฝนคันจิเพื่อการทดสอบภาษาญี่ปุ่นพื้นฐาน (A2)</p>
+        </header>
 
-    <!-- Core App Pages Container -->
-    <main class="flex-grow flex flex-col p-4 overflow-y-auto justify-between max-h-[calc(100vh-100px)]">
-
-        <!-- SCREEN 1: Home Registration -->
-        <section id="screen-home" class="flex-grow flex flex-col justify-center animate-pop-in py-2">
-            <div class="text-center mb-4">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-indigo-500 to-teal-400 rounded-2xl shadow-lg mb-3 transform rotate-3">
-                    <span class="text-3xl text-white font-black">漢字</span>
-                </div>
-                <h2 class="text-xl font-black text-white">Kanji Master Game</h2>
-                <p class="text-ms text-slate-400 mt-0.5">Please log in with student details to begin.</p>
+        <main>
+            <!-- หน้า: รายการคันจิ -->
+            <div id="page-list" class="page active">
+                <div id="kanji-list-container"></div>
             </div>
 
-            <!-- Custom Security/Anti-Cheat Notice -->
-            <div class="bg-indigo-950/40 border border-indigo-800/50 rounded-xl p-3 mb-4 text-[11px] text-indigo-300 flex items-start gap-2">
-                <i class="fa-solid fa-shield-halved text-ms text-indigo-400 mt-0.5"></i>
-                <div>
-                    <span class="font-bold block mb-0.5">ຄຳເຕືອນຄວາມປອດໄພ / Anti-Cheat Active</span>
-                    The app restricts copying, right-clicks, and console viewing to ensure a fair test.
-                </div>
-            </div>
-
-            <!-- Fields Container -->
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Student ID (ລະຫັດນັກສຶກສາ)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-ms">
-                            <i class="fa-solid fa-id-card"></i>
-                        </span>
-                        <input type="text" id="player-id" placeholder="ຕົວຢ່າງ: STU12345"
-                               class="w-full bg-slate-800/80 border border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono">
+            <!-- หน้า: ควิซ -->
+            <div id="page-quiz" class="page">
+                
+                <!-- ตั้งค่าการเริ่มเล่น ป้อนตัวเลขข้อตามต้องการเรียนรู้ -->
+                <div id="quiz-setup" class="setup-box">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <h2>ระบุช่วงคันจิที่ต้องการทำ Quiz</h2>
+                    <p class="setup-desc">พิมพ์เลขข้อคันจิที่คุณต้องการทดสอบในช่วงที่ต้องการ</p>
+                    
+                    <div class="config-container">
+                        <!-- ป้อนชื่อผู้ใช้ -->
+                        <div class="config-field">
+                            <label><i class="fa-solid fa-user-pen" style="color: var(--primary); margin-right: 4px;"></i> ชื่อผู้เรียน:</label>
+                            <input type="text" id="quiz-username-input" class="config-input" placeholder="พิมพ์ชื่อผู้เรียนที่นี่..." autocomplete="off">
+                        </div>
+                        
+                        <!-- ป้อนตัวเลขข้อเริ่มต้นและสิ้นสุดแบบอิสระ -->
+                        <div class="config-field">
+                            <label><i class="fa-solid fa-circle-play" style="color: var(--success); margin-right: 4px;"></i> คันจิตัวเริ่มต้นที่:</label>
+                            <div class="range-select-row">
+                                <input type="number" id="quiz-start-range" class="config-input" placeholder="พิมพ์ตัวเลข..." min="1" oninput="validateRanges()">
+                                <span>ตัวที่</span>
+                            </div>
+                        </div>
+                        <div class="config-field">
+                            <label><i class="fa-solid fa-circle-stop" style="color: var(--accent); margin-right: 4px;"></i> คันจิตัวสุดท้ายที่:</label>
+                            <div class="range-select-row">
+                                <input type="number" id="quiz-end-range" class="config-input" placeholder="พิมพ์ตัวเลข..." min="1" oninput="validateRanges()">
+                                <span>ตัวที่</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-sub); margin-top: 4px; font-weight: 500;">
+                                *จำนวนคำศัพท์ทั้งหมดในระบบ: <span id="total-kanji-hint" style="font-weight: bold; color: var(--primary);">10</span> ตัว
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-action-wrapper">
+                        <button class="btn" onclick="startQuiz()"><i class="fa-solid fa-circle-play"></i> เริ่มต้นทำแบบทดสอบ</button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Full Name (ຊື່ ແລະ ນາມສະກຸນ)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-ms">
-                            <i class="fa-solid fa-user"></i>
-                        </span>
-                        <input type="text" id="player-name" placeholder="ຕົວຢ່າງ: ສົມສັກ ແກ້ວມະນີ"
-                               class="w-full bg-slate-800/80 border border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                <!-- ระหว่างทำควิซ -->
+                <div id="quiz-play" style="display: none;">
+                    <div class="quiz-header-bar">
+                        <button class="home-btn" onclick="exitToSetup()">
+                            <i class="fa-solid fa-house"></i> หน้าหลักตั้งค่า
+                        </button>
+                        <div class="quiz-progress" id="quiz-progress-text">คำถามที่ 1/5</div>
+                    </div>
+                    
+                    <div class="quiz-card" id="quiz-flashcard">
+                        <!-- สัญลักษณ์วงกลมสีเขียว (Maru) ที่จะเด้งซ้อนเมื่อตอบถูก -->
+                        <div id="maru-overlay" class="maru-overlay-container">
+                            <div class="maru-circle"></div>
+                        </div>
+
+                        <div class="quiz-kanji" id="current-kanji">駅</div>
+                        <div id="quiz-instruction" class="quiz-question-text">พิมพ์เสียงอ่านของคันจิ (ฮิรางานะ หรือ โรมาจิ)</div>
+                        
+                        <!-- 1. พาร์ทแรก: พิมพ์ตอบเสียงอ่านคันจิ -->
+                        <input type="text" id="quiz-input" class="quiz-input" placeholder="พิมพ์คำตอบที่นี่..." autocomplete="off" autocapitalize="off" spellcheck="false">
+                        
+                        <!-- การ์ดเฉลยความถูกต้องสำหรับพาร์ทสะกดเสียงอ่าน (Morphing State) -->
+                        <div id="quiz-success-state" class="success-state-container" style="display: none;">
+                            <div class="success-badge">
+                                <i class="fa-solid fa-circle-check"></i> ถูกต้องสมบูรณ์!
+                            </div>
+                            <div class="success-reading-display">
+                                <span id="success-kana">えき</span>
+                                <span class="romaji-sub" id="success-romaji">(eki)</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. พาร์ทสอง: เลือกความหมายคันจิ (ไม่มีประโยคตัวอย่างบดบังสายตา) -->
+                        <div id="quiz-choices-container" class="choices-container" style="display: none;"></div>
+
+                        <div id="hint-box" class="hint-box"></div>
+                        
+                        <div id="feedback-box" class="feedback-box">ถูกต้อง!</div>
+                    </div>
+
+                    <!-- ปุ่มดำเนินการทั้งหมด จัดวางกึ่งกลางหน้าจอ -->
+                    <div class="quiz-action-wrapper">
+                        <button class="btn" id="quiz-action-btn" onclick="handleQuizAction()">ตรวจคำตอบ</button>
                     </div>
                 </div>
+
+                <!-- หน้าจอสรุปผล -->
+                <div id="quiz-result" style="display: none;">
+                    <h2 class="result-title"><i class="fa-solid fa-square-poll-vertical" style="color: var(--primary); margin-right: 8px;"></i>ประเมินผลสัมฤทธิ์</h2>
+                    
+                    <!-- แสดงเปอร์เซ็นต์ความถูกต้องแยก 2 ปุ่ม -->
+                    <div class="score-container-dual">
+                        <div class="score-circle-wrapper">
+                            <div class="score-circle reading-theme">
+                                <div class="percent" id="result-percent-reading">0%</div>
+                                <div class="label">ถูกต้องทันที</div>
+                            </div>
+                            <div class="circle-title-desc">พิมพ์สะกดเสียงอ่าน</div>
+                        </div>
+                        <div class="score-circle-wrapper">
+                            <div class="score-circle meaning-theme">
+                                <div class="percent" id="result-percent-meaning">0%</div>
+                                <div class="label">ถูกต้องทันที</div>
+                            </div>
+                            <div class="circle-title-desc">เลือกความหมาย</div>
+                        </div>
+                    </div>
+
+                    <!-- พื้นที่รายงานประเมินความแม่นยำรายครั้ง, ช่วงคันจิ, ชื่อ และเวลาทั้งหมดที่ใช้งาน -->
+                    <div id="result-summary"></div>
+
+                    <h3 style="margin-bottom: 12px; font-size: 0.95rem; color: var(--secondary);">ตารางสรุปผลลัพธ์รายข้อ:</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>คันจิ</th>
+                                    <th>สะกดอ่านผิด</th>
+                                    <th>เลือกความหมายผิด</th>
+                                    <th>จำนวนครั้งพยายาม</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-table-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="quiz-action-wrapper">
+                        <button class="btn" onclick="resetQuizView()"><i class="fa-solid fa-rotate-left"></i> ท้าทายรอบใหม่</button>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Form Validation Alert -->
-            <div id="registration-error" class="hidden text-rose-400 text-ms mt-2.5 flex items-center gap-1.5 bg-rose-950/30 border border-rose-900/40 p-2 rounded-lg">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span id="reg-error-msg">ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບຖ້ວນທັງສອງຊ່ອງ!</span>
-            </div>
+            <!-- หน้า: ประวัติการเรียนรู้สะสมรายวัน -->
+            <div id="page-history" class="page">
+                <div class="history-summary-box">
+                    <h3><i class="fa-solid fa-chart-line"></i> สถิติการฝึกฝนโดยรวมของคุณ</h3>
+                    <div class="history-summary-grid">
+                        <div class="history-summary-card">
+                            <div class="val" id="total-practices-count">0</div>
+                            <div class="lbl">จำนวนครั้งฝึกฝน</div>
+                        </div>
+                        <div class="history-summary-card">
+                            <div class="val" id="avg-reading-score">0%</div>
+                            <div class="lbl">เสียงอ่านเฉลี่ย</div>
+                        </div>
+                        <div class="history-summary-card">
+                            <div class="val" id="avg-meaning-score">0%</div>
+                            <div class="lbl">ความหมายเฉลี่ย</div>
+                        </div>
+                        <div class="history-summary-card">
+                            <div class="val" id="total-kanjis-practiced">0</div>
+                            <div class="lbl">คันจิสะสมทั้งหมด</div>
+                        </div>
+                    </div>
+                </div>
 
-            <button onclick="submitRegistration()" 
-                    class="w-full mt-5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 active:scale-[0.98] text-white font-extrabold py-3 rounded-xl shadow-lg shadow-indigo-500/10 transition-all flex items-center justify-center gap-2 text-sm">
-                <span>Proceed to Lessons</span>
-                <i class="fa-solid fa-arrow-right"></i>
+                <div class="history-list-title">
+                    <span>ประวัติบันทึกรายรอบ</span>
+                    <button class="clear-btn" onclick="confirmAndClearHistory()" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 12px; margin: 0;">
+                        <i class="fa-solid fa-trash-can"></i> ล้างประวัติ
+                    </button>
+                </div>
+
+                <div id="history-logs-container"></div>
+            </div>
+        </main>
+
+        <nav>
+            <button class="nav-btn active" id="nav-list" onclick="switchPage('list')">
+                <i class="fa-solid fa-book-open"></i>
+                รายการคันจิ
             </button>
-        </section>
-
-        <!-- SCREEN 2: Choose Lesson -->
-        <section id="screen-lessons" class="hidden flex-grow flex flex-col justify-center animate-pop-in py-2">
-            <div class="mb-4 text-center">
-                <h3 class="text-lg font-extrabold text-white">ເລືອກບົດຮຽນ / Choose Lesson</h3>
-                <p class="text-ms text-slate-400 mt-0.5">Select a level unit to test your skills</p>
-            </div>
-
-            <div class="space-y-3" id="lessons-list-container">
-                <!-- Dynamically populated lessons via JavaScript -->
-            </div>
-
-            <button onclick="showScreen('screen-home')" 
-                    class="w-full mt-5 bg-slate-800/60 hover:bg-slate-800 active:scale-[0.98] text-slate-300 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[11px]">
-                <i class="fa-solid fa-arrow-left"></i>
-                <span>ຍ້ອນກັບໄປແກ້ໄຂຂໍ້ມູນ / Edit Profile</span>
+            <button class="nav-btn" id="nav-quiz" onclick="switchPage('quiz')">
+                <i class="fa-solid fa-circle-question"></i>
+                ทำควิซ
             </button>
-        </section>
-
-        <!-- SCREEN 3: Interactive Quiz -->
-        <section id="screen-game" class="hidden flex-grow flex flex-col justify-between animate-pop-in">
-            <!-- Progress Elements -->
-            <div class="space-y-2 mb-2">
-                <div class="flex justify-between items-center text-[10px]">
-                    <span class="text-slate-400 uppercase tracking-widest font-bold">Progress (ຄວາມຄືບໜ້າ)</span>
-                    <span id="progress-indicator" class="font-bold text-indigo-400">Question 1/70</span>
-                </div>
-                <!-- Interactive custom progress bar -->
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div id="progress-bar-fill" class="bg-gradient-to-r from-teal-400 to-indigo-500 h-full w-[2%] transition-all duration-300"></div>
-                </div>
-                <!-- HUD Player Stats -->
-                <div class="flex justify-between items-center text-[11px] bg-slate-800/40 px-2.5 py-1.5 rounded-lg border border-slate-800/60">
-                    <div class="truncate max-w-[150px]">
-                        <span class="text-slate-500 mr-1"><i class="fa-solid fa-user animate-pulse"></i></span>
-                        <span id="hud-player-name" class="font-medium text-slate-300">Student</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-500 mr-1"><i class="fa-solid fa-star text-amber-500"></i> Score:</span>
-                        <span id="hud-score" class="font-bold text-amber-400">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Question Presentation Card (Compact Height) -->
-            <div class="my-auto flex flex-col items-center justify-center py-2">
-                <span id="question-type-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-2.5 inline-block shadow-sm">
-                    Reading Check
-                </span>
-
-                <div class="w-full glassmorphism rounded-xl p-4 text-center shadow-lg relative overflow-hidden flex flex-col justify-center items-center min-h-[90px]">
-                    <h3 id="target-display" class="font-black text-white tracking-wide transition-all duration-100 font-japanese">
-                        便利
-                    </h3>
-                    <p id="target-subtext" class="text-[11px] text-slate-400 mt-1 font-medium">
-                        (Check reading below)
-                    </p>
-                </div>
-            </div>
-
-            <!-- Multiple Choice Buttons Grid (Tight spacing) -->
-            <div class="space-y-2.5" id="options-container">
-                <!-- Dynamically generated choice buttons are loaded here -->
-            </div>
-
-            <!-- Bottom Controller Action Row (Saves space) -->
-            <div class="mt-3 min-h-[40px] flex items-center justify-center">
-                <button id="btn-next" onclick="advanceNextQuestion()" disabled
-                        class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.98] text-white font-extrabold py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 text-ms">
-                    <span>ຄຳຖາມຖັດໄປ / Next Question</span>
-                    <i class="fa-solid fa-arrow-right-long"></i>
-                </button>
-            </div>
-        </section>
-
-        <!-- SCREEN 4: Dashboard Reports -->
-        <section id="screen-result" class="hidden flex-grow flex flex-col justify-center animate-pop-in space-y-3.5 py-1">
-            <div class="text-center">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full mb-1">
-                    <i class="fa-solid fa-circle-check text-xl"></i>
-                </div>
-                <h3 class="text-lg font-black text-white">ສຳເລັດການທົດສອບ!</h3>
-                <p class="text-[10px] text-slate-400">Your official assessment record has been compiled.</p>
-            </div>
-
-            <!-- Big Final Score Panel -->
-            <div class="glassmorphism rounded-xl p-3 text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 bg-indigo-500 text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-br-lg">
-                    Certificate
-                </div>
-                <div class="text-4xl font-black text-amber-400 mb-0.5" id="result-score-percent">
-                    100%
-                </div>
-                <div class="text-[11px] font-semibold text-slate-300" id="result-score-fraction">
-                    Score: 35 / 35 Correct Answers
-                </div>
-            </div>
-
-            <!-- Structured Student Details List -->
-            <div class="bg-slate-800/50 rounded-xl p-3 border border-slate-800 space-y-2 text-[11px]">
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1.5">
-                    <span class="text-slate-400 font-medium">Student ID (ລະຫັດ)</span>
-                    <span id="result-player-id" class="font-mono font-bold text-white">STU-1234</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1.5">
-                    <span class="text-slate-400 font-medium">Student Name (ຊື່)</span>
-                    <span id="result-player-name" class="font-bold text-white truncate max-w-[150px]">Somsack</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1.5">
-                    <span class="text-slate-400 font-medium">Lesson Unit (ບົດຮຽນ)</span>
-                    <span id="result-lesson-unit" class="font-bold text-indigo-300">Lesson 1</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1.5">
-                    <span class="text-slate-400 font-medium">Completion Date & Time (ວັນເວລາ)</span>
-                    <span id="result-timestamp" class="font-bold text-white">2026-05-20 09:00</span>
-                </div>
-                <div class="flex justify-between items-center pb-0">
-                    <span class="text-slate-400 font-medium">Total Time (ເວລາທີ່ໃຊ້)</span>
-                    <span id="result-time-used" class="font-bold text-amber-300 font-mono text-ms">01:45</span>
-                </div>
-            </div>
-
-            <!-- Dynamic Review Section -->
-            <div id="incorrect-review-box" class="hidden">
-                <h4 class="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1 flex items-center gap-1.5">
-                    <i class="fa-solid fa-graduation-cap text-indigo-400"></i>
-                    <span>ຄຳທີ່ຕອບຜິດ / Review Missed Kanji</span>
-                </h4>
-                <div class="bg-slate-800/40 rounded-xl overflow-hidden border border-slate-800 text-[10px] max-h-[110px] overflow-y-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="sticky top-0 bg-slate-800 text-slate-400 font-bold border-b border-slate-700/40 z-10">
-                            <tr>
-                                <th class="p-2">Kanji</th>
-                                <th class="p-2">Reading</th>
-                                <th class="p-2">Lao Meaning</th>
-                            </tr>
-                        </thead>
-                        <tbody id="incorrect-review-list">
-                            <!-- Populated with rows of incorrect words -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Control Buttons -->
-            <div class="grid grid-cols-2 gap-2.5 pt-1">
-                <button onclick="restartActiveLesson()" 
-                        class="bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-ms">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    <span>ທົດສອບຄືນ / Retry</span>
-                </button>
-                <button onclick="showScreen('screen-lessons')" 
-                        class="bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-ms">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span>ເລືອກບົດໃໝ່ / Lessons</span>
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- App Footer -->
-    <footer class="p-2 text-center text-[9px] text-slate-600 border-t border-slate-800/40 bg-slate-900/40">
-        &copy; 2026 Kanji Quiz Master. Developed with Anti-Cheat Guards.
-    </footer>
-</div>
-
-<!-- Custom Dialog Modal (Anti-Cheat Alarm Box) -->
-<div id="custom-alert" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-pop-in">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl text-center space-y-4">
-        <div id="alert-icon-container" class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">
-            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-        </div>
-        <div>
-            <h4 id="alert-title" class="text-base font-bold text-white">Anti-Cheat Alert</h4>
-            <p id="alert-message" class="text-ms text-slate-300 mt-1">Please focus strictly on your screen inside the classroom context!</p>
-        </div>
-        <button onclick="dismissCustomAlert()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-ms transition-all border border-slate-700/50">
-            Dismiss Warning
-        </button>
+            <button class="nav-btn" id="nav-history" onclick="switchPage('history')">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                ประวัติบันทึก
+            </button>
+        </nav>
     </div>
-</div>
 
-<script>
-    // 35 Kanji items partitioned into 3 logical units
-    const kanjiDatabase = {
- {
-    1: {
-        title: "ບົດຮຽນ 1: Unit One (1-35)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "10分", reading: "じゅっぷん", lao: "10 ນາທີ", rChoices: ["じゅっぷん", "じゅうぷん", "じゅうふん"], mChoices: ["10 ນາທີ", "10 ໂມງ", "10 ວິນາທີ"] },
-            { kanji: "2時半", reading: "にじはん", lao: "2 ໂມງເຄິ່ງ", rChoices: ["にじはん", "にじぱん", "ふたつじはん"], mChoices: ["2 ໂມງເຄິ່ງ", "2 ໂມງ", "12 ໂມງເຄິ່ງ"] },
-            { kanji: "４月", reading: "しがつ", lao: "ເດືອນເມສາ", rChoices: ["しがつ", "よんがつ", "よがつ"], mChoices: ["ເດືອນເມສາ", "ເດືອນພຶດສະພາ", "ເດືອນມີນາ"] },
-            { kanji: "5枚", reading: "ごまい", lao: "5 ແຜ່ນ", rChoices: ["ごまい", "ごまつ", "ごばい"], mChoices: ["5 ແຜ່ນ", "5 ອັນ", "5 ໂຕ"] },
-            { kanji: "９時", reading: "くじ", lao: "9 ໂມງ", rChoices: ["くじ", "きゅうじ", "こじ"], mChoices: ["9 ໂມງ", "7 ໂມງ", "10 ໂມງ"] },
-            { kanji: "お母さん", reading: "おかあさん", lao: "ແມ່ (ຂອງຄົນອື່ນ)", rChoices: ["おかあさん", "おかあさんん", "おがあさん"], mChoices: ["ແມ່ (ຂອງຄົນອື່ນ)", "ພໍ່ (ຂອງຄົນອື່ນ)", "ເອື້ອຍ (ຂອງຄົນອື່ນ)"] },
-            { kanji: "お父さん", reading: "おとうさん", lao: "ພໍ່ (ຂອງຄົນອື່ນ)", rChoices: ["おとうさん", "おとおさん", "おどうさん"], mChoices: ["ພໍ່ (ຂອງຄົນອື່ນ)", "ແມ່ (ຂອງຄົນອື່ນ)", "ອ້າຍ (ຂອງຄົນອື່ນ)"] },
-            { kanji: "下", reading: "した", lao: "ຂ້າງລຸ່ມ", rChoices: ["した", "か", "さげ"], mChoices: ["ຂ້າງລຸ່ມ", "ຂ້າງເທິງ", "ຂ້າງໃນ"] },
-            { kanji: "中", reading: "なか", lao: "ຂ້າງໃນ / ກາງ", rChoices: ["なか", "ちゅう", "かな"], mChoices: ["ຂ້າງໃນ / ກາງ", "ຂ້າງນອກ", "ຂ້າງເທິງ"] },
-            { kanji: "今日", reading: "きょう", lao: "ມື້ນີ້", rChoices: ["きょう", "きょお", "いまひ"], mChoices: ["ມື້ນີ້", "ມື້ອື່ນ", "ມື້ວານນີ້"] },
-            { kanji: "今月", reading: "こんげつ", lao: "ເດືອນນີ້", rChoices: ["こんげつ", "いまつき", "こんがつ"], mChoices: ["ເດືອນນີ້", "ເດືອນໜ້າ", "ເດືອນແລ້ວ"] },
-            { kanji: "以上", reading: "いじょう", lao: "ຂຶ້ນໄປ / ຫຼາຍກວ່າ", rChoices: ["いじょう", "いしょお", "いじょ"], mChoices: ["ຂຶ້ນໄປ / ຫຼາຍກວ່າ", "ຕ່ຳກວ່າ", "ຄຳສັ່ງ"] },
-            { kanji: "前", reading: "まえ", lao: "ຂ້າງໜ້າ / ກ່ອນ", rChoices: ["まえ", "ぜん", "うしろ"], mChoices: ["ຂ້າງໜ້າ / ກ່ອນ", "ຂ້າງຫຼັງ", "ຂ້າງເທິງ"] },
-            { kanji: "午前", reading: "ごぜん", lao: "ຕອນເຊົ້າ (AM)", rChoices: ["ごぜん", "ごご", "こぜん"], mChoices: ["ຕອນເຊົ້າ (AM)", "ຕອນບ່າຍ (PM)", "ຕອນແລງ"] },
-            { kanji: "名前", reading: "なまえ", lao: "ຊື່", rChoices: ["なまえ", "みょうじ", "めいぜん"], mChoices: ["ຊື່", "ນາມສະກຸນ", "ທີ່ຢູ່"] },
-            { kanji: "名詞", reading: "めいし", lao: "ຄຳນາມ", rChoices: ["めいし", "みょうじ", "めいじ"], mChoices: ["ຄຳນາມ", "ຄຳກິລິຍา", "ຄຳຄຸນນາມ"] },
-            { kanji: "国", reading: "くに", lao: "ປະເທດ", rChoices: ["くに", "こく", "まち"], mChoices: ["ປະເທດ", "ເມືອງ", "ໝູ່ບ້ານ"] },
-            { kanji: "国際交流", reading: "こくさいこうりゅう", lao: "ການແລກປ່ຽນລະຫວ່າງປະເທດ", rChoices: ["こくさいこうりゅう", "こくさいきょうりゅう", "こくさいほうりゅう"], mChoices: ["ການແລກປ່ຽນລະຫວ່າງປະເທດ", "ຄວາມຮ່ວມມືສາກົນ", "ການທ່ອງທ່ຽວສາກົນ"] },
-            { kanji: "土曜日", reading: "どようび", lao: "ວັນເສົາ", rChoices: ["どようび", "とようび", "にちようび"], mChoices: ["ວັນເສົາ", "ວັນອາທິດ", "ວັນສຸກ"] },
-            { kanji: "外国", reading: "がいこく", lao: "ຕ່າງປະເທດ", rChoices: ["がいこく", "かいこく", "そとくに"], mChoices: ["ຕ່າງປະເທດ", "ໃນປະເທດ", "ປະເທດເພື່ອນບ້ານ"] },
-            { kanji: "夜", reading: "よる", lao: "ຕອນກາງຄືນ", rChoices: ["よる", "ばん", "よ"], mChoices: ["ຕອນກາງຄືນ", "ຕອນເຊົ້າ", "ຕອນແລງ"] },
-            { kanji: "女の人", reading: "おんなのひと", lao: "ຜູ້ຍິງ", rChoices: ["おんなのひと", "おんなのこ", "おとこのひと"], mChoices: ["ຜູ້ຍິງ", "ຜູ້ຊາຍ", "ເດັກຍິງ"] },
-            { kanji: "子供", reading: "こども", lao: "ເດັກນ້ອຍ / ລູກ", rChoices: ["こども", "おとな", "こどもん"], mChoices: ["ເດັກນ້ອຍ / ລູກ", "ຜູ້ໃຫຍ່", "ໄວຮຸ່ນ"] },
-            { kanji: "料金", reading: "りょうきん", lao: "ຄ່າບໍລິການ / ຄ່າທໍານຽມ", rChoices: ["りょうきん", "りょきん", "りょうぎん"], mChoices: ["ຄ່າບໍລິການ / ຄ່າທໍານຽມ", "ເງິນສົດ", "ໃບບິນ"] },
-            { kanji: "日本", reading: "にほん/にっぽん", lao: "ປະເທດຍີ່ປຸ່ນ", rChoices: ["にほん/にっぽん", "にほんこ", "にほんく"], mChoices: ["ປະເທດຍີ່ປຸ່ນ", "ປະເທດຈີນ", "ປະទេດເກົາຫຼີ"] },
-            { kanji: "明日", reading: "あした", lao: "ມື້ອື່ນ", rChoices: ["あした", "あしたた", "きのう"], mChoices: ["ມື້ອື່ນ", "ມື້ນີ້", "ມື້ວານນີ້"] },
-            { kanji: "昨日", reading: "きのう", lao: "ມື້ວານນີ້", rChoices: ["きのう", "きょう", "あした"], mChoices: ["ມື້ວານນີ້", "ມື້ນີ້", "ມື້ອື່ນ"] },
-            { kanji: "時間", reading: "じかん", lao: "ເວລາ / ຊົ່ວໂມງ", rChoices: ["じかん", "じがん", "ときだん"], mChoices: ["ເວລາ / ຊົ່ວໂມງ", "ໂມງ", "ນາທີ"] },
-            { kanji: "月", reading: "つき", lao: "ດວງຈັນ / ເດືອນ", rChoices: ["つき", "がつ", "げつ"], mChoices: ["ດວງຈັນ / ເດືອນ", "ດວງອາທິດ", "ດາວ"] },
-            { kanji: "朝", reading: "あさ", lao: "ຕອນເຊົ້າ", rChoices: ["あさ", "よる", "ひる"], mChoices: ["ຕອນເຊົ້າ", "ຕອນແລງ", "ຕອນທ່ຽງ"] },
-            { kanji: "母", reading: "はは", lao: "ແມ່ (ຂອງຂ້ອຍ)", rChoices: ["はは", "ちち", "おかあさん"], mChoices: ["ແມ່ (ຂອງຂ້ອຍ)", "ພໍ່ (ຂອງຂ້ອຍ)", "ແມ່ (ຂອງຄົນອື່ນ)"] },
-            { kanji: "毎日", reading: "まいにち", lao: "ທຸກໆມື້", rChoices: ["まいにち", "まいつき", "まいとし"], mChoices: ["ທຸກໆມື້", "ທຸກໆເດືອນ", "ທຸກໆອາທິດ"] },
-            { kanji: "父", reading: "ちち", lao: "ພໍ່ (ຂອງຂ້ອຍ)", rChoices: ["ちち", "はは", "おとうさん"], mChoices: ["ພໍ່ (ຂອງຂ້ອຍ)", "ແມ່ (ຂອງຂ້ອຍ)", "ພໍ່ (ຂອງຄົນອື່ນ)"] },
-            { kanji: "男の人", reading: "おとこのひと", lao: "ຜູ້ຊາຍ", rChoices: ["おとこのひと", "おとこのこ", "おんなのひと"], mChoices: ["ຜູ້ຊາຍ", "ຜູ້ຍິງ", "ເດັກຊາຍ"] },
-            { kanji: "私", reading: "わたし", lao: "ຂ້ອຍ/ຂ້າພະເຈົ້າ", rChoices: ["わたし", "わらし", "ぼく"], mChoices: ["ຂ້ອຍ/ຂ້າພະເຈົ້າ", "ເຈົ້າ", "ລາວ"] }
-        ]
-    },
-    2: {
-        title: "ບົດຮຽນ 2: Unit Two (1-35)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "お会計", reading: "おかいけい", lao: "ການເຊັກບິນ / ຄິດເງິນ", rChoices: ["おかいけい", "おかいげい", "おがいけい"], mChoices: ["ການເຊັກບິນ / ຄິດເງິນ", "ໃບບິນ", "ກະເປົາເງິນ"] },
-            { kanji: "お正月", reading: "おしょうがつ", lao: "ວັນປີໃຫມ່", rChoices: ["おしょうがつ", "おしょうがつん", "おじょうがつ"], mChoices: ["ວັນປີໃຫມ່", "ວັນຄຣິດສະມາດ", "ວັນເກີດ"] },
-            { kanji: "中止", reading: "ちゅうし", lao: "ການຍົກເລີກ / ການຢຸດເຊົາ", rChoices: ["ちゅうし", "きゅうし", "じゅうし"], mChoices: ["ການຍົກເລີກ / ການຢຸດເຊົາ", "ການເລື່ອນເວລາ", "ການເລີ່ມຕົ້ນ"] },
-            { kanji: "乗ります", reading: "のります", lao: "ຂີ່ (ລົດ, ຢານພາຫະນະ)", rChoices: ["のります", "おります", "とびます"], mChoices: ["ຂີ່ (ລົດ, ຢານພາຫະນະ)", "ລົງ (ຈາກລົດ)", "ຂັບລົດ"] },
-            { kanji: "休み", reading: "やすみ", lao: "ວັນພັກ / ການພັກຜ່ອນ", rChoices: ["やすみ", "やすむ", "お休み"], mChoices: ["ວັນພັກ / ການພັກຜ່ອນ", "ເວລາເຮັດວຽກ", "ໂຮງຮຽນ"] },
-            { kanji: "会います", reading: "あいます", lao: "ພົບ / ເຈີ", rChoices: ["あいます", "いいます", "あけます"], mChoices: ["ພົບ / ເຈີ", "ເວົ້າ", "ເບິ່ງ"] },
-            { kanji: "会場", reading: "かいじょう", lao: "ສະຖານທີ່ຈັດງານ", rChoices: ["かいじょう", "かいしょ", "がいじょう"], mChoices: ["ສະຖານທີ່ຈັດງານ", "ຫ້ອງການ", "ສະໜາມບິນ"] },
-            { kanji: "会社", reading: "かいしゃ", lao: "ບໍລິສັດ", rChoices: ["かいしゃ", "かいじゃ", "がいしゃ"], mChoices: ["ບໍລິສັດ", "ໂຮງຮຽນ", "ໂຮງໝໍ"] },
-            { kanji: "低い", reading: "ひくい", lao: "ຕ່ຳ", rChoices: ["ひくい", "ひぐい", "たかい"], mChoices: ["ຕ່ຳ", "ສູງ", "ສັ້ນ"] },
-            { kanji: "先生", reading: "せんせい", lao: "ອາຈານ / ທ່ານໝໍ", rChoices: ["せんせい", "ぜんせい", "しんせい"], mChoices: ["ອາຈານ / ທ່ານໝໍ", "ນັກຮຽນ", "ພະນັກງານ"] },
-            { kanji: "勉強する", reading: "べんきょうする", lao: "ຮຽນ", rChoices: ["べんきょうする", "けんきゅうする", "れんしゅうする"], mChoices: ["ຮຽນ", "ສອນ", "ຫຼິ້ນ"] },
-            { kanji: "北", reading: "きた", lao: "ທິດເໜືອ", rChoices: ["きた", "みなみ", "ひがし"], mChoices: ["ທິດເໜືອ", "ທິດໃຕ້", "ທິດຕາເວັນອອກ"] },
-            { kanji: "大きい", reading: "おおきい", lao: "ໃຫຍ່", rChoices: ["おおきい", "おきい", "ちいさい"], mChoices: ["ໃຫຍ່", "ນ້ອຍ", "ຍາວ"] },
-            { kanji: "大人", reading: "おとな", lao: "ຜູ້ໃຫຍ່", rChoices: ["おとな", "だいじん", "おおひと"], mChoices: ["ຜູ້ໃຫຍ່", "ເດັກນ້ອຍ", "ໄວຮຸ່ນ"] },
-            { kanji: "大切", reading: "たいせつ", lao: "ສຳຄັນ", rChoices: ["たいせつ", "だいせつ", "たいせづ"], mChoices: ["ສຳຄັນ", "ຈຳເປັນ", "ອັນຕະລາຍ"] },
-            { kanji: "大変", reading: "たいへん", lao: "ຍາກລຳບາກ / ຫຼາຍ", rChoices: ["たいへん", "だいへん", "たいへんぬ"], mChoices: ["ຍາກລຳບາກ / ຫຼາຍ", "ງ່າຍດາຍ", "ສະບາຍ"] },
-            { kanji: "大学", reading: "だいがく", lao: "ມະຫາວິທະຍາໄລ", rChoices: ["だいがく", "たいがく", "だいがっく"], mChoices: ["ມະຫາວິທະຍາໄລ", "ໂຮງຮຽນມັດທະຍົມ", "ໂຮງຮຽນປະຖົມ"] },
-            { kanji: "安い", reading: "やすい", lao: "ຖືກ (ລາຄາ)", rChoices: ["やすい", "たかい", "やすむ"], mChoices: ["ຖືກ (ລາຄາ)", "ແພງ", "ໃຫມ່"] },
-            { kanji: "小さい", reading: "ちいさい", lao: "ນ້ອຍ", rChoices: ["ちいさい", "ちさい", "おおきい"], mChoices: ["ນ້ອຍ", "ໃຫຍ່", "ສັ້ນ"] },
-            { kanji: "持っていく", reading: "もっていく", lao: "ເອົາໄປ / ເອົາຕິດໂຕໄປ", rChoices: ["もっていく", "もってくる", "もってかえる"], mChoices: ["ເອົາໄປ / ເອົາຕິດໂຕໄປ", "ເອົາມາ", "ເອົາກັບຄືນ"] },
-            { kanji: "指定席", reading: "していせき", lao: "ບ່ອນນັ່ງທີ່ຈອງໄວ້", rChoices: ["していせき", "じっていせき", "していぜき"], mChoices: ["ບ່ອນນັ່ງທີ່ຈອງໄວ້", "ບ່ອນນັ່ງທົ່ວໄປ", "ປີ້ລົດໄຟ"] },
-            { kanji: "旅行します", reading: "りょこうします", lao: "ທ່ອງທ່ຽວ", rChoices: ["りょこうします", "りょこします", "りょくうします"], mChoices: ["ທ່ອງທ່ຽວ", "ຍ່າງຫຼິ້ນ", "ເຮັດວຽກ"] },
-            { kanji: "昼", reading: "ひる", lao: "ຕອນທ່ຽງ / ກາງເວັນ", rChoices: ["ひる", "よる", "あさ"], mChoices: ["ຕອນທ່ຽງ / ກາງເວັນ", "ຕອນກາງຄືນ", "ຕອນແລງ"] },
-            { kanji: "時計", reading: "とけい", lao: "ໂມງ (ໃສ່ແຂນ/ຕິດຝາ)", rChoices: ["とけい", "どけい", "とけえ"], mChoices: ["ໂມງ (ໃສ່ແຂນ/ຕິດຝາ)", "ໂທລະສັບ", "ແວ່ນຕາ"] },
-            { kanji: "来年", reading: "らいねん", lao: "ປີໜ້າ", rChoices: ["らいねん", "ことし", "きょねん"], mChoices: ["ປີໜ້າ", "ປີນີ້", "ປີກາຍນີ້"] },
-            { kanji: "来週", reading: "らいしゅう", lao: "ອາທິດໜ້າ", rChoices: ["らいしゅう", "こんしゅう", "せんしゅう"], mChoices: ["ອາທິດໜ້າ", "ອາທິດນີ້", "ອາທິດແລ້ວ"] },
-            { kanji: "温度", reading: "おんど", lao: "ອຸນຫะພູມ", rChoices: ["おんど", "おんと", "おんどん"], mChoices: ["ອຸນຫะພູມ", "ອາກາດ", "ຄວາມຊຸ່ມ"] },
-            { kanji: "温泉", reading: "おんせん", lao: "ບ່ອນອາບນ້ຳຮ້ອນ / ອອນເຊັນ", rChoices: ["おんせん", "おんぜん", "おんせんぬ"], mChoices: ["ບ່ອນອາບນ້ຳຮ້ອນ / ອອນເຊັນ", "ຫ້ອງອາບນ້ຳ", "ທะເລ"] },
-            { kanji: "生活", reading: "せいかつ", lao: "ການດຳລົງຊີວິດ / ຊີວິດການເປັນຢູ່", rChoices: ["せいかつ", "せいかつん", "ぜいかつ"], mChoices: ["ການດຳລົງຊີວິດ / ຊີວິດການເປັນຢູ່", "ການເຮັດວຽກ", "ການຮຽນ"] },
-            { kanji: "神社", reading: "じんじゃ", lao: "ສານເຈົ້າ (ຊິນໂຕ)", rChoices: ["じんじゃ", "じんしゃ", "しんじゃ"], mChoices: ["ສານເຈົ້າ (ຊິນໂຕ)", "ວັດ", "ໂບດ"] },
-            { kanji: "英語", reading: "えいご", lao: "ພາສາອັງກິດ", rChoices: ["えいご", "えいこ", "にほんご"], mChoices: ["ພາສາອັງກິດ", "ພາສາຍີ່ປຸ່ນ", "ພາສາລາວ"] },
-            { kanji: "設定する", reading: "せっていする", lao: "ຕັ້ງຄ່າ", rChoices: ["せっていする", "していする", "せんでいする"], mChoices: ["ຕັ້ງຄ່າ", "ຍົກເລີກ", "ກວດສອບ"] },
-            { kanji: "読みます", reading: "よみます", lao: "ອ່ານ", rChoices: ["よみます", "みみます", "きみます"], mChoices: ["ອ່ານ", "ຂຽນ", "ຟັງ"] },
-            { kanji: "高い", reading: "たかい", lao: "ສູງ / ແພງ", rChoices: ["たかい", "ひくい", "たがい"], mChoices: ["ສູງ / ແພງ", "ຕ່ຳ", "ຖືກ"] },
-            { kanji: "高校", reading: "こうこう", lao: "ໂຮງຮຽນມັດທະຍົມຕອນປາຍ", rChoices: ["こうこう", "ちゅうがく", "だいがく"], mChoices: ["ໂຮງຮຽນມັດທະຍົມຕອນປາຍ", "ໂຮງຮຽນມັດທະຍົມຕອນຕົ້ນ", "ມະຫາວິທະຍາໄລ"] }
-        ]
-    },
-    3: {
-        title: "ບົດຮຽນ 3: Unit Three (1-35)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "お寺", reading: "おてら", lao: "ວັດ", rChoices: ["おてら", "おでら", "じんじゃ"], mChoices: ["ວັດ", "ສານເຈົ້າ", "ໂບດ"] },
-            { kanji: "予定", reading: "よてい", lao: "ກຳນົດການ / ແຜນການ", rChoices: ["よてい", "よでい", "ゆうてい"], mChoices: ["ກຳນົດການ / ແຜນການ", "ການຈອງ", "ຜົນລັບ"] },
-            { kanji: "予約", reading: "よやく", lao: "ການຈອງ (ຫ້ອງ, ບ່ອນນັ່ງ)", rChoices: ["よやく", "ほうやく", "よやくぬ"], mChoices: ["ການຈອງ (ຫ້ອງ, ບ່ອນນັ່ງ)", "ການນັດໝາຍ", "ການສັນຍາ"] },
-            { kanji: "冬", reading: "ふゆ", lao: "ລະດູໜາວ", rChoices: ["ふゆ", "あき", "なつ"], mChoices: ["ລະດູໜາວ", "ລະດູຮ້ອນ", "ລະດູໃບໄມ້ຫຼົ່ນ"] },
-            { kanji: "同じ", reading: "おなじ", lao: "ຄືກັນ / ຄ້າຍກັນ", rChoices: ["おなじ", "おなし", "おなじぬ"], mChoices: ["ຄືກັນ / ຄ້າຍກັນ", "ຕ່າງກັນ", "ພິເສດ"] },
-            { kanji: "場合", reading: "ばあい", lao: "ກໍລະນີ / ສະຖານະການ", rChoices: ["ばあい", "ばガイ", "はあい"], mChoices: ["ກໍລະນີ / ສະຖານະການ", "ສະຖານທີ່", "ເຫດຜົນ"] },
-            { kanji: "夏", reading: "なつ", lao: "ລະດູຮ້ອນ", rChoices: ["なつ", "ふゆ", "はる"], mChoices: ["ລະດູຮ້ອນ", "ລະດູໜາວ", "ລະດູໃບໄມ້ປົ່ງ"] },
-            { kanji: "季節", reading: "きせつ", lao: "ລະດູການ", rChoices: ["きせつ", "きぜつ", "しせつ"], mChoices: ["ລະດູການ", "ອາກາດ", "ທຳມະຊາດ"] },
-            { kanji: "学生", reading: "がくせい", lao: "ນັກຮຽນ / ນັກສຶກສາ", rChoices: ["がくせい", "がくぜい", "かくせい"], mChoices: ["ນັກຮຽນ / ນັກສຶກສາ", "ອາຈານ", "ພະນັກງານ"] },
-            { kanji: "寒い", reading: "さむい", lao: "ໜາວ (ອາກາດ)", rChoices: ["さむい", "つめたい", "あつい"], mChoices: ["ໜາວ (ອາກາດ)", "ເຢັນ (ສິ່ງຂອງ)", "ຮ້ອນ"] },
-            { kanji: "強い", reading: "つよい", lao: "ແຂງແຮງ / ແຮງ", rChoices: ["つよい", "よわい", "すごい"], mChoices: ["ແຂງແຮງ / ແຮງ", "ອ່ອນແອ", "ໄວ"] },
-            { kanji: "復習", reading: "ふくしゅう", lao: "ການທວນຄືນ (ບົດຮຽນ)", rChoices: ["ふくしゅう", "よしゅう", "れんしゅう"], mChoices: ["ການທວນຄືນ (ບົດຮຽນ)", "ການກຽມບົດຮຽນລ່ວງໜ້າ", "ການຝຶກຊ້ອມ"] },
-            { kanji: "旅館", reading: "りょかん", lao: "ໂຮງແຮມແບບຍີ່ປຸ່ນ", rChoices: ["りょかん", "りょこう", "りょかんぬ"], mChoices: ["ໂຮງແຮມແບບຍີ່ປຸ່ນ", "ໂຮງແຮມທົ່ວໄປ", "ຮ້ານອາຫານ"] },
-            { kanji: "映画", reading: "えいが", lao: "ຮູບເງົາ", rChoices: ["えいが", "えいか", "まんが"], mChoices: ["ຮູບເງົາ", "ກາຕູນ", "ເພງ"] },
-            { kanji: "春", reading: "はる", lao: "ລະດູໃບໄມ້ປົ່ງ", rChoices: ["はる", "あき", "なつ"], mChoices: ["ລະດູໃບໄມ້ປົ່ງ", "ລະດູໃບໄມ້ຫຼົ່ນ", "ລະດູໜາວ"] },
-            { kanji: "晴れ", reading: "はれ", lao: "ທ້ອງຟ້າແຈ່ມໃສ / ອາກາດດີ", rChoices: ["はれ", "あめ", "くもり"], mChoices: ["ທ້ອງຟ້າແຈ່ມໃສ / ອາກາດດີ", "ຝົນຕົກ", "ທ້ອງຟ້າມືດຄຶ້ມ"] },
-            { kanji: "楽しい", reading: "たのしい", lao: "ມ່ວນຊື່ນ / ສະໜຸກສະໜານ", rChoices: ["たのしい", "うれしい", "おもしろい"], mChoices: ["ມ່ວນຊື່ນ / ສະໜຸກສະໜານ", "ດີໃຈ", "ໜ້າເບື່ອ"] },
-            { kanji: "熱い", reading: "あつい", lao: "ຮ້ອນ (ສິ່ງຂອງ / ຈັບບາຍ)", rChoices: ["あつい", "さむい", "あたたかい"], mChoices: ["ຮ້ອນ (ສິ່ງຂອງ / ຈັບບາຍ)", "ໜາວ", "ອຸ່ນ"] },
-            { kanji: "生まれる", reading: "うまれる", lao: "ເກີດ", rChoices: ["うまれる", "いきる", "うむ"], mChoices: ["ເກີດ", "ມີຊີວິດຢູ່", "ຕາຍ"] },
-            { kanji: "生魚", reading: "なまざかな", lao: "ປາດິບ", rChoices: ["なまざかな", "なまさかな", "せいぎょ"], mChoices: ["ປາດິບ", "ປາຢ້າງ", "ປາຕົ້ມ"] },
-            { kanji: "秋", reading: "あき", lao: "ລະດູໃບໄມ້ຫຼົ່ນ", rChoices: ["あき", "はる", "ふゆ"], mChoices: ["ລະດູໃບໄມ້ຫຼົ່ນ", "ລະດູໃບໄມ້ປົ່ງ", "ລະດູຮ້ອນ"] },
-            { kanji: "練習", reading: "れんしゅう", lao: "ການຝຶກຊ້ອມ / ຝຶກຫັດ", rChoices: ["れんしゅう", "しゅくだい", "ふくしゅう"], mChoices: ["ການຝຶກຊ້ອມ / ຝຶກຫັດ", "ວຽກບ້ານ", "ການທວນຄືນ"] },
-            { kanji: "習う", reading: "ならう", lao: "ຮຽນ (ໂດຍມີຄົນສອນ)", rChoices: ["ならう", "べんきょうする", "おしえる"], mChoices: ["ຮຽນ (ໂດຍມີຄົນສອນ)", "ສອນ", "ອ່ານ"] },
-            { kanji: "花", reading: "はな", lao: "ດອກໄມ້", rChoices: ["はな", "はっぱ", "はなぬ"], mChoices: ["ດອກໄມ້", "ໃບໄມ້", "ຕົ້ນໄມ້"] },
-            { kanji: "計画", reading: "けいかく", lao: "ແຜນການ / ໂຄງການ", rChoices: ["けいかく", "けいさつ", "よてい"], mChoices: ["ແຜນການ / ໂຄງການ", "ຕຳຫຼວດ", "ຄວາມຄິດ"] },
-            { kanji: "話す", reading: "はなす", lao: "ເວົ້າ / ສົນທະນາ", rChoices: ["はなす", "いう", "きく"], mChoices: ["ເວົ້າ / ສົນທະນາ", "ຟັງ", "ອ່ານ"] },
-            { kanji: "調理方法", reading: "ちょうりほうほう", lao: "ວິທີການປຸງແຕ່ງອາຫານ", rChoices: ["ちょうりほうほう", "りょうりほうほう", "ちょうりほうほうぬ"], mChoices: ["ວິທີການປຸງແຕ່ງອາຫານ", "ວິທີການກິນ", "ເມນູອາຫານ"] },
-            { kanji: "買う", reading: "かう", lao: "ຊື້", rChoices: ["かう", "うる", "かうぬ"], mChoices: ["ຊື້", "ຂາຍ", "ຢືມ"] },
-            { kanji: "近所", reading: "きんじょ", lao: "ແຖວບ້ານ / ບໍລິເວນໃກ້ຄຽງ", rChoices: ["きんじょ", "きんじょお", "ばしょ"], mChoices: ["ແຖວບ້ານ / ບໍລິເວນໃກ້ຄຽງ", "ສະຖານີ", "ສວນສາທາລະນະ"] },
-            { kanji: "週間", reading: "しゅうかん", lao: "ສັບປະດາ / ອາທິດ (ໄລຍະເວລາ)", rChoices: ["しゅうかん", "しゅかん", "じかん"], mChoices: ["ສັບປະດາ / ອາທິດ (ໄລຍະເວລາ)", "ເດືອນ", "ປີ"] },
-            { kanji: "道具", reading: "どうぐ", lao: "ອຸປະກອນ / ເຄື່ອງມື", rChoices: ["どうぐ", "とうぐ", "かぐ"], mChoices: ["ອຸປະກອນ / ເຄື່ອງມື", "ເຄື່ອງເຟີນີເຈີ", "ຂອງຫຼິ້ນ"] },
-            { kanji: "電話番号", reading: "でんわばんごう", lao: "ເບີໂທລະສັບ", rChoices: ["でんわばんごう", "でんわばんご", "ばんごう"], mChoices: ["ເບີໂທລະສັບ", "ທີ່ຢູ່", "ລະຫັດຜ່ານ"] },
-            { kanji: "音", reading: "おと", lao: "ສຽງ (ສິ່ງຂອງ, ທຳມະຊາດ)", rChoices: ["おと", "こえ", "おんど"], mChoices: ["ສຽງ (ສິ່ງຂອງ, ທຳມະຊາດ)", "ສຽງ (ຄົນ, ສັດ)", "ອຸນຫะພູມ"] },
-            { kanji: "音楽", reading: "おんがく", lao: "ດົນຕີ / ເພງ", rChoices: ["おんがく", "おんがっく", "えいが"], mChoices: ["ດົນຕີ / ເພງ", "ຮູບເງົາ", "ຮູບພາບ"] },
-            { kanji: "駅", reading: "えき", lao: "ສະຖານີລົດໄຟ", rChoices: ["えき", "みせ", "いえ"], mChoices: ["ສະຖານີລົດໄຟ", "ຮ້ານຄ້າ", "ເຮືອນ"] }
-        ]
-    },
-    4: {
-        title: "ບົດຮຽນ 4: Unit Four (1-35)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "お皿", reading: "おさら", lao: "ຈານ", rChoices: ["おさら", "おちゃら", "おはし"], mChoices: ["ຈານ", "ຖ້ວຍ", "ຊ້ອນ"] },
-            { kanji: "お茶", reading: "おちゃ", lao: "ນ້ຳຊາ / ຊາ", rChoices: ["おちゃ", "おさけ", "おみず"], mChoices: ["ນ້ຳຊາ / ຊາ", "ເຫຼົ້າ", "ນ້ຳເປົ່າ"] },
-            { kanji: "お酒", reading: "おさけ", lao: "ເຫຼົ້າ / ສຸລາ", rChoices: ["おさけ", "おちゃ", "おゆ"], mChoices: ["ເຫຼົ້າ / ສຸລາ", "ນ້ຳຊາ", "ນ້ຳຮ້ອນ"] },
-            { kanji: "会場", reading: "かいじょう", lao: "ສະຖານທີ່ຈັດງານ", rChoices: ["かいじょう", "かいしゃ", "こうじょう"], mChoices: ["ສະຖານທີ່ຈັດງານ", "ບໍລິສັດ", "ໂຮງງານ"] },
-            { kanji: "住所", reading: "じゅうしょ", lao: "ທີ່ຢູ່", rChoices: ["じゅうしょ", "じゅうしょお", "ばしょ"], mChoices: ["ທີ່ຢູ່", "ເບີໂທລະສັບ", "ສະຖານທີ່"] },
-            { kanji: "全員", reading: "ぜんいん", lao: "ທຸກຄົນ / ສະມາຊິກທັງໝົດ", rChoices: ["ぜんいん", "ぜんぶん", "せんいん"], mChoices: ["ທຸກຄົນ / ສະມາຊິກທັງໝົດ", "ບາງຄົນ", "ຄົນດຽວ"] },
-            { kanji: "全然", reading: "ぜんぜん", lao: "ບໍ່ເລີຍ / ບໍ່...ເລີຍ (ໃຊ້ກັບປະຕິເສດ)", rChoices: ["ぜんぜん", "せんせん", "ぜんぶ"], mChoices: ["ບໍ່ເລີຍ / ບໍ່...ເລີຍ (ໃຊ້ກັບປະຕິເສດ)", "ສະເໝີ", "ບາງຄັ້ງ"] },
-            { kanji: "全部", reading: "ぜんぶ", lao: "ທັງໝົດ", rChoices: ["ぜんぶ", "ぜんぷ", "ぜんぜん"], mChoices: ["ທັງໝົດ", "ເຄິ່ງໜຶ່ງ", "ສ່ວນໜ້ອຍ"] },
-            { kanji: "公園", reading: "こうえん", lao: "ສวนສາທາລະນະ", rChoices: ["こうえん", "どうぶつえん", "ゆうえんち"], mChoices: ["ສວນສາທາລະນະ", "ສວນສັດ", "ສວນສະໜຸກ"] },
-            { kanji: "動物園", reading: "どうぶつえん", lao: "ສວນສັດ", rChoices: ["どうぶつえん", "こうえん", "しょくぶつえん"], mChoices: ["ສວນສັດ", "ສວນສາທາລະນະ", "ສວນພືດສາດ"] },
-            { kanji: "卵", reading: "たまご", lao: "ໄຂ່", rChoices: ["たまご", "さかな", "にく"], mChoices: ["ໄຂ່", "ປາ", "ຊີ້ນ"] },
-            { kanji: "参加する", reading: "さんかする", lao: "ເຂົ້າຮ່ວມ", rChoices: ["さんかする", "けんがくする", "しょうかいする"], mChoices: ["ເຂົ້າຮ່ວມ", "ຢ້ຽມຊົມ", "ແນະນຳ"] },
-            { kanji: "受付", reading: "うけつけ", lao: "ແຜນກຕ້ອນຮັບ / ປະຊາສຳພັນ", rChoices: ["うけつけ", "うけづけ", "うきつけ"], mChoices: ["ແຜນກຕ້ອນຮັບ / ປະຊາສຳພັນ", "ຫ້ອງການ", "ທາງເຂົ້າ"] },
-            { kanji: "右", reading: "みぎ", lao: "ເບື້ອງຂວາ / ຂວາ", rChoices: ["みぎ", "ひだり", "みなみ"], mChoices: ["ເບື້ອງຂວາ / ຂວາ", "ເບື້ອງຊ້າຍ", "ທິດໃຕ້"] },
-            { kanji: "問", reading: "とい", lao: "ຄໍາຖາມ / ຂໍ້ (ຄໍາຖາມ)", rChoices: ["とい", "もん", "こたえ"], mChoices: ["ຄໍາຖາມ / ຂໍ້ (ຄໍາຖາມ)", "ຄໍາຕອບ", "ຕົວຢ່າງ"] },
-            { kanji: "場所", reading: "ばしょ", lao: "ສະຖານທີ່", rChoices: ["ばしょ", "じゅうしょ", "ばじょ"], mChoices: ["ສະຖານທີ່", "ທີ່ຢູ່", "ຫ້ອງການ"] },
-            { kanji: "売る", reading: "うる", lao: "ຂາຍ", rChoices: ["うる", "かう", "ある"], mChoices: ["ຂາຍ", "ຊື້", "ມີ"] },
-            { kanji: "左", reading: "ひだり", lao: "ເບື້ອງຊ້າຍ / ຊ້າຍ", rChoices: ["ひだり", "みぎ", "きた"], mChoices: ["ເບື້ອງຊ້າຍ / ຊ້າຍ", "ເບື້ອງຂວາ", "ທິດເໜືອ"] },
-            { kanji: "意味", reading: "いみ", lao: "ຄວາມໝາຍ", rChoices: ["いみ", "いじ", "しゅみ"], mChoices: ["ຄວາມໝາຍ", "ຄວາມຄິດ", "ວຽກອະດິເຣກ"] },
-            { kanji: "教える", reading: "おしえる", lao: "ສອນ / ບອກ", rChoices: ["おしえる", "おぼえる", "ならう"], mChoices: ["ສອນ / ບອກ", "ຈື່", "ຮຽນ"] },
-            { kanji: "教室", reading: "きょうしつ", lao: "ຫ້ອງຮຽນ", rChoices: ["きょうしつ", "きょうかしょ", "しょくどう"], mChoices: ["ຫ້ອງຮຽນ", "ປຶ້ມແບບຮຽນ", "ໂຮງອາຫານ"] },
-            { kanji: "教科書", reading: "きょうかしょ", lao: "ປຶ້ມແບບຮຽນ", rChoices: ["きょうかしょ", "きょうしつ", "じしょ"], mChoices: ["ປຶ້ມແບບຮຽນ", "ຫ້ອງຮຽນ", "ວັດຈະນານຸກົມ"] },
-            { kanji: "料理", reading: "りょうり", lao: "ອາຫານ / ການເຮັດອາຫານ", rChoices: ["りょうり", "りょかん", "りょうきん"], mChoices: ["ອາຫານ / ການເຮັດອາຫານ", "ໂຮງແຮມຍີ່ປຸ່ນ", "ຄ່າບໍລິການ"] },
-            { kanji: "最近", reading: "さいきん", lao: "ຊ່ວງນີ້ / ໝົດມໍ່ໆນີ້", rChoices: ["さいきん", "さいしょ", "さいご"], mChoices: ["ຊ່ວງນີ້ / ໝົດມໍ່ໆນີ້", "ທຳອິດ", "ສຸດທ້າຍ"] },
-            { kanji: "材料", reading: "ざいりょう", lao: "ວັດຖຸດິບ / ສ່ວນປະສົມ", rChoices: ["ざいりょう", "りょうり", "さいりょう"], mChoices: ["ວັດຖຸດິບ / ສ່ວນປະສົມ", "อาหาร", "ອຸປະກອນ"] },
-            { kanji: "用意する", reading: "よういする", lao: "ກຽມ / ກຽມພ້ອມ", rChoices: ["よういする", "よやくする", "よていする"], mChoices: ["ກຽມ / ກຽມພ້ອມ", "ຈອງ", "ວາງແຜນ"] },
-            { kanji: "考える", reading: "かんがえる", lao: "ຄິດ / ພິຈາລະນາ", rChoices: ["かんがえる", "おぼえる", "つたえる"], mChoices: ["ຄິດ / ພິຈາລະນາ", "ຈື່", "ແຈ້ງໃຫ້ຊາບ"] },
-            { kanji: "言う", reading: "いう", lao: "ເວົ້າ", rChoices: ["いう", "はなす", "きく"], mChoices: ["ເວົ້າ", "ສົນທະນາ", "ຟັງ"] },
-            { kanji: "貸す", reading: "かす", lao: "ໃຫ້ຢືມ", rChoices: ["かす", "かりる", "かえす"], mChoices: ["ໃຫ້ຢືມ", "ຂ້ອຍຢືມ", "ສົ່ງຄືນ"] },
-            { kanji: "近く", reading: "ちかく", lao: "ໃກ້ໆ / ບໍລິເວນໃກ້ຊິດ", rChoices: ["ちかく", "とおく", "ちいさい"], mChoices: ["ໃກ້ໆ / ບໍລິເວນໃກ້ຊິດ", "ໄກໆ", "ນ້ອຍ"] },
-            { kanji: "送ります", reading: "おくります", lao: "ສົ່ງ (ເຄື່ອງ, ຈົດໝາຍ)", rChoices: ["おくります", "おこります", "おくらせます"], mChoices: ["ສົ່ງ (ເຄື່ອງ, ຈົດໝາຍ)", "ຮ້າຍ / ຄຽດ", "ຊັກຊ້າ"] },
-            { kanji: "野菜", reading: "やさい", lao: "ຜັກ", rChoices: ["やさい", "くだもの", "さかな"], mChoices: ["ຜັກ", "ໝາກໄມ້", "ປາ"] },
-            { kanji: "銀行", reading: "ぎんこう", lao: "ທະນາຄານ", rChoices: ["ぎんこう", "きんこう", "ぎんこうぬ"], mChoices: ["ທະນາຄານ", "ໂຮງຮຽນ", "ໂຮງໝໍ"] },
-            { kanji: "電気", reading: "でんき", lao: "ໄຟຟ້າ / ໄຟ", rChoices: ["でんき", "でんしゃ", "てんき"], mChoices: ["ໄຟຟ້າ / ໄຟ", "ລົດໄຟ", "ອາກາດ"] },
-            { kanji: "電車", reading: "でんしゃ", lao: "ລົດໄຟ", rChoices: ["でんしゃ", "でんき", "じどうしゃ"], mChoices: ["ລົດໄຟ", "ໄຟຟ້າ", "ລົດຍົນ"] }
-        ]
-    },
-    5: {
-        title: "ບົດຮຽນ 5: Unit Five (1-35)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "伝える", reading: "つたえる", lao: "ແຈ້ງໃຫ້ຊາບ / ບອກໃຫ້ຮູ້ / ສື່ສານ", rChoices: ["つたえる", "つづける", "つだえる"], mChoices: ["ແຈ້ງໃຫ້ຊາບ / ບອກໃຫ້ຮູ້ / ສື່ສານ", "ເຮັດຕໍ່ເນື່ອງ", "ຄິດ"] },
-            { kanji: "住む", reading: "すむ", lao: "ອາໄສຢູ່", rChoices: ["すむ", "つむ", "する"], mChoices: ["ອາໄສຢູ່", "ເຮັດ", "ຢຸດ"] },
-            { kanji: "体", reading: "からだ", lao: "ຮ່າງກາຍ", rChoices: ["からだ", "かたち", "あたま"], mChoices: ["ຮ່າງກາຍ", "ຮູບຮ່າງ", "ຫົວ"] },
-            { kanji: "光る", reading: "ひかる", lao: "ສ່ອງແສງ / ເປັນປະກາຍ", rChoices: ["ひかる", "いきる", "ひがえる"], mChoices: ["ສ່ອງແສງ / ເປັນປະກາຍ", "ມີຊີວິດ", "ກັບຄືນ"] },
-            { kanji: "医者", reading: "いしゃ", lao: "ທ່ານໝໍ", rChoices: ["いしゃ", "かんごし", "いしゃぬ"], mChoices: ["ທ່ານໝໍ", "ພະຍາບານ", "ຄູສອນ"] },
-            { kanji: "地震", reading: "じしん", lao: "ແຜ່ນດິນໄຫວ", rChoices: ["じしん", "じしんぬ", "じじん"], mChoices: ["ແຜ່ນດິນໄຫວ", "ໄຕ້ຝຸ່ນ", "ນ້ຳຖ້ວມ"] },
-            { kanji: "客", reading: "きゃく", lao: "ລູກຄ້າ / ແຂກ", rChoices: ["きゃく", "かく", "ぎゃく"], mChoices: ["ລູກຄ້າ / ແຂກ", "ເຈົ້າຂອງຮ້ານ", "ພະນັກງານ"] },
-            { kanji: "山", reading: "やま", lao: "ພູ / ພູເຂົາ", rChoices: ["やま", "かわ", "うみ"], mChoices: ["ພູ / ພູເຂົາ", "ແມ່ນ້ຳ", "ທະເລ"] },
-            { kanji: "川", reading: "かわ", lao: "ແມ່ນ້ຳ", rChoices: ["かわ", "やま", "いけ"], mChoices: ["ແມ່ນ້ຳ", "ພູເຂົາ", "ໜອງນ້ຳ"] },
-            { kanji: "帰る", reading: "かえる", lao: "ກັບ (ເຮືອນ/ປະເທດ)", rChoices: ["かえる", "かえるぬ", "まがる"], mChoices: ["ກັບ (ເຮືອນ/ປະເທດ)", "ປ່ຽນ", "ລ້ຽວ"] },
-            { kanji: "役に立つ", reading: "やくにたつ", lao: "ມີປະໂຫຍດ", rChoices: ["やくにたつ", "やくにだつ", "たてにやく"], mChoices: ["ມີປະໂຫຍດ", "ບໍ່ມີປະໂຫຍດ", "ເປັນອັນຕະລາຍ"] },
-            { kanji: "歌", reading: "うた", lao: "ເພງ", rChoices: ["うた", "おと", "うたぬ"], mChoices: ["ເພງ", "ສຽງ", "ຮູບເງົາ"] },
-            { kanji: "歩く", reading: "あるく", lao: "ຍ່າງ", rChoices: ["あるく", "はしる", "とぶ"], mChoices: ["ຍ່າງ", "ແລ່ນ", "ບິນ"] },
-            { kanji: "泣く", reading: "なく", lao: "ໄຫ້", rChoices: ["なく", "わらう", "おこる"], mChoices: ["ໄຫ້", "ຫົວ", "ຮ້າຍ / ຄຽດ"] },
-            { kanji: "海", reading: "うみ", lao: "ທະເລ", rChoices: ["うみ", "かわ", "やま"], mChoices: ["ທະເລ", "ແມ່ນ້ຳ", "ພູເຂົາ"] },
-            { kanji: "満足", reading: "まんぞく", lao: "ຄວາມເພິ່ງພໍໃຈ", rChoices: ["まんぞく", "はんぞく", "まんそく"], mChoices: ["ຄວາມເພິ່ງພໍໃຈ", "ຄວາມຜິດຫວັງ", "ຄວາມເສຍໃຈ"] },
-            { kanji: "熱", reading: "ねつ", lao: "ໄຂ້ / ຄວາມຮ້ອນ", rChoices: ["ねつ", "てつ", "ねづ"], mChoices: ["ໄຂ້ / ຄວາມຮ້ອນ", "ໄອ", "ເຈັບຫົວ"] },
-            { kanji: "痛い", reading: "いたい", lao: "ເຈັບ / ປວດ", rChoices: ["いたい", "つめたい", "かゆい"], mChoices: ["ເຈັບ / ປວດ", "ເຢັນ", "ຄັນ"] },
-            { kanji: "目", reading: "め", lao: "ຕາ", rChoices: ["め", "みみ", "くち"], mChoices: ["ຕາ", "ຫູ", "ປາກ"] },
-            { kanji: "眠い", reading: "ねむい", lao: "ງ້ວງນອນ", rChoices: ["ねむい", "さむい", "いたい"], mChoices: ["ງ້ວງນອນ", "ໜາວ", "ເຈັບ"] },
-            { kanji: "短い", reading: "みじかい", lao: "ສັ້ນ", rChoices: ["みじかい", "ながい", "みじがい"], mChoices: ["ສັ້ນ", "ຍາວ", "ສູງ"] },
-            { kanji: "立つ", reading: "たつ", lao: "ຢືນ", rChoices: ["たつ", "すわる", "ねる"], mChoices: ["ຢືນ", "ນັ່ງ", "ນອນ"] },
-            { kanji: "経験", reading: "けいけん", lao: "ປະສົບການ", rChoices: ["けいけん", "けいさん", "じっけん"], mChoices: ["ປະສົບການ", "ການຄິດໄລ່", "ການທົດລອງ"] },
-            { kanji: "耳", reading: "みみ", lao: "ຫູ", rChoices: ["みみ", "め", "はな"], mChoices: ["ຫູ", "ຕາ", "ດັງ"] },
-            { kanji: "薬", reading: "くすり", lao: "ຢາ", rChoices: ["くすり", "くずり", "おかし"], mChoices: ["ຢາ", "ເຂົ້າໜົມ", "ອາຫານ"] },
-            { kanji: "観光", reading: "かんこう", lao: "ການທ່ອງທ່ຽວ", rChoices: ["かんこう", "りょこう", "かんこうぬ"], mChoices: ["ການທ່ອງທ່ຽວ", "ການເຮັດວຽກ", "ການຮຽນ"] },
-            { kanji: "観光地", reading: "かんこうち", lao: "ສະຖານທີ່ທ່ອງທ່ຽວ", rChoices: ["かんこうち", "かんこうじ", "りょこうち"], mChoices: ["ສະຖານທີ່ທ່ອງທ່ຽວ", "ສະຖານນີ", "ບໍລິສັດ"] },
-            { kanji: "調子", reading: "ちょうし", lao: "ສະພາບ (ຮ່າງກາຍ/ເຄື່ອງຈັກ)", rChoices: ["ちょうし", "きもち", "ちょうじ"], mChoices: ["ສະພາບ (ຮ່າງກາຍ/ເຄື່ອງຈັກ)", "ອາລົມ", "ອຸນຫະພູມ"] },
-            { kanji: "走る", reading: "はしる", lao: "ແລ່ນ", rChoices: ["はしる", "あるく", "とまる"], mChoices: ["ແລ່ນ", "ຍ່າງ", "ຢຸດ"] },
-            { kanji: "起きる", reading: "おきる", lao: "ຕື່ນນອນ / ເກີດຂຶ້ນ", rChoices: ["おきる", "ねる", "おちる"], mChoices: ["ຕື່ນນອນ / ເກີດຂຶ້ນ", "ນອນ", "ຕົກ / ຫຼົ່ນ"] },
-            { kanji: "足", reading: "あし", lao: "ຂາ / ຕີນ", rChoices: ["あし", "て", "あたま"], mChoices: ["ຂາ / ຕີນ", "ມື", "ຫົວ"] },
-            { kanji: "運転する", reading: "うんてんする", lao: "ຂັບລົດ", rChoices: ["うんてんする", "うんどうする", "うんてんずる"], mChoices: ["ຂັບລົດ", "ອອກກຳລັງກາຍ", "ຂີ່ລົດໄຟ"] },
-            { kanji: "長い", reading: "ながい", lao: "ຍາວ", rChoices: ["ながい", "みじかい", "たかい"], mChoices: ["ຍາວ", "ສັ້ນ", "ສູງ"] },
-            { kanji: "頭", reading: "あたま", lao: "ຫົວ / ສະໝອງ", rChoices: ["あたま", "かお", "からだ"], mChoices: ["ຫົວ / ສະໝອງ", "ໜ້າ", "ຮ່າງກາຍ"] },
-            { kanji: "顔", reading: "かお", lao: "ໜ້າ", rChoices: ["かお", "あたま", "め"], mChoices: ["ໜ້າ", "ຫົວ", "ຕາ"] }
-        ]
-    },
-    6: {
-        title: "ບົດຮຽນ 6: Unit Six (1-40)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "お祭り", reading: "おまつり", lao: "ງານບຸນ / ເທສະການ", rChoices: ["おまつり", "おまつりぬ", "おしょうがつ"], mChoices: ["ງານບຸນ / ເທສະການ", "ວັນປີໃຫມ່", "ງານດອງ"] },
-            { kanji: "お葬式", reading: "おそうしき", lao: "ງານສົບ", rChoices: ["おそうしき", "おぞうしき", "けっこんしき"], mChoices: ["ງານສົບ", "ງານດອງ", "ງານລ້ຽງ"] },
-            { kanji: "世界", reading: "せかい", lao: "ໂລກ", rChoices: ["せかい", "ぜかい", "しゃかい"], mChoices: ["ໂລກ", "ປະເທດ", "ສັງຄົມ"] },
-            { kanji: "以下", reading: "いか", lao: "ລົງໄປ / ຕ່ຳກວ່າ", rChoices: ["いか", "いじょう", "いかぬ"], mChoices: ["ລົງໄປ / ຕ່ຳກວ່າ", "ຂຶ້ນໄປ / ຫຼາຍກວ່າ", "ພາຍໃນ"] },
-            { kanji: "体験", reading: "たいけん", lao: "ການປະສົບດ້ວຍຕົວເອງ / ປະສົບການ", rChoices: ["たいけん", "けいけん", "じっけん"], mChoices: ["ການປະສົບດ້ວຍຕົວເອງ / ປະສົບການ", "ການທົດລອງ", "ການຮຽນ"] },
-            { kanji: "写真", reading: "しゃしん", lao: "ຮູບຖ່າຍ", rChoices: ["しゃしん", "さしん", "えいが"], mChoices: ["ຮູບຖ່າຍ", "ຮູບເງົາ", "ຮູບແຕ້ມ"] },
-            { kanji: "募集", reading: "ぼしゅう", lao: "ການຮັບສະໝັກ", rChoices: ["ぼしゅう", "ほしゅう", "あつめ"], mChoices: ["ການຮັບສະໝັກ", "ການຍົກເລີກ", "ການສະໝັກ"] },
-            { kanji: "危ない", reading: "あぶない", lao: "ອັນຕະລາຍ", rChoices: ["あぶない", "あぶないぬ", "あんぜん"], mChoices: ["ອັນຕະລາຍ", "ປອດໄພ", "ຍາກ"] },
-            { kanji: "危険", reading: "きけん", lao: "ອັນຕະລາຍ / ຄວາມສ່ຽງ", rChoices: ["きけん", "きげん", "あんぜん"], mChoices: ["ອັນຕະລາຍ / ຄວາມສ່ຽງ", "ປອດໄພ", "ສະດວກ"] },
-            { kanji: "増える", reading: "ふえる", lao: "ເພີ່ມຂຶ້ນ", rChoices: ["ふえる", "へる", "かえる"], mChoices: ["ເພີ່ມຂຶ້ນ", "ຫຼຸດລົງ", "ປ່ຽນ"] },
-            { kanji: "声", reading: "こえ", lao: "ສຽງ (ຄົນ, ສັດ)", rChoices: ["こえ", "おと", "うた"], mChoices: ["ສຽງ (ຄົນ, ສັດ)", "ສຽງ (ສິ່ງຂອງ)", "ເພງ"] },
-            { kanji: "始まる", reading: "はじまる", lao: "ເລີ່ມຕົ້ນ", rChoices: ["はじまる", "おわる", "つづく"], mChoices: ["ເລີ່ມຕົ້ນ", "ຈົບ / ສິ້ນສຸດ", "ຕໍ່ເນື່ອງ"] },
-            { kanji: "島", reading: "しま", lao: "ເກາະ", rChoices: ["しま", "まち", "うみ"], mChoices: ["ເກາະ", "ເມືອງ", "ທະເລ"] },
-            { kanji: "希望", reading: "きぼう", lao: "ຄວາມຫວັງ / ຄວາມຕ້ອງການ", rChoices: ["きぼう", "きほう", "ゆめ"], mChoices: ["ຄວາມຫວັງ / ຄວາມຕ້ອງການ", "ຄວາມຝັນ", "ຄວາມຜິດຫວັງ"] },
-            { kanji: "店員", reading: "てんいん", lao: "ພະນັກງານຮ້ານ", rChoices: ["てんいん", "てんちょう", "えきいん"], mChoices: ["ພະນັກງານຮ້ານ", "ຜູ້ຈັດການຮ້ານ", "ພະນັກງານສະຖານີ"] },
-            { kanji: "店長", reading: "てんちょう", lao: "ຜູ້ຈັດການຮ້ານ", rChoices: ["てんちょう", "てんいん", "しゃちょう"], mChoices: ["ຜູ້ຈັດການຮ້ານ", "ພະນັກງານຮ້ານ", "ປະທານບໍລິສັດ"] },
-            { kanji: "建てる", reading: "たてる", lao: "ສ້າງ (ອາຄານ, ເຮືອນ)", rChoices: ["たてる", "つくる", "たつ"], mChoices: ["ສ້າງ (ອາຄານ, ເຮືອນ)", "ເຮັດ / ຜະລິດ", "ຢືນ"] },
-            { kanji: "心配", reading: "しんぱい", lao: "ຄວາມເປັນຫ່ວງ / ກັງວົນ", rChoices: ["しんぱい", "あんしん", "しんばい"], mChoices: ["ຄວາມເປັນຫ່ວງ / ກັງວົນ", "ສະບາຍໃຈ", "ຄວາມເສຍໃຈ"] },
-            { kanji: "怒る", reading: "おこる", lao: "ຮ້າຍ / ຄຽດ / ສູນ", rChoices: ["おこる", "わらう", "なく"], mChoices: ["ຮ້າຍ / ຄຽດ / ສູນ", "ຫົວ", "ໄຫ້"] },
-            { kanji: "慣れる", reading: "なれる", lao: "ຄຸ້ນເຄີຍ / ຊິນ", rChoices: ["なれる", "わすれる", "はしる"], mChoices: ["ຄຸ້ນເຄີຍ / ຊິນ", "ລືມ", "ແລ່ນ"] },
-            { kanji: "普通", reading: "ふつう", lao: "ທົ່ວໄປ / ທຳມະດາ", rChoices: ["ふつう", "ぶつう", "とくべつ"], mChoices: ["ທົ່ວໄປ / ທຳມະດາ", "ພິເສດ", "ງ່າຍ"] },
-            { kanji: "暗い", reading: "くらい", lao: "ມຶດ", rChoices: ["くらい", "あかるい", "くろい"], mChoices: ["ມຶດ", "ແຈ້ງ / ສະຫວ່າງ", "ສີດຳ"] },
-            { kanji: "服", reading: "ふく", lao: "ເສື້ອຜ້າ", rChoices: ["ふく", "くつ", "かばん"], mChoices: ["ເສື້ອຜ້າ", "ເກີບ", "ກະເປົາ"] },
-            { kanji: "条件", reading: "じょうけん", lao: "ເງື່ອນໄຂ", rChoices: ["じょうけん", "じょけん", "ようけん"], mChoices: ["ເງື່ອນໄຂ", "ເຫດຜົນ", "ເປົ້າໝາຍ"] },
-            { kanji: "森", reading: "もり", lao: "ປ່າ / ປ່າໄມ້", rChoices: ["もり", "はやし", "やま"], mChoices: ["ປ່າ / ປ່າໄມ້", "ປ່າລະເໝາະ", "ພູເຂົາ"] },
-            { kanji: "決める", reading: "きめる", lao: "ຕັດສິນໃຈ", rChoices: ["きめる", "えらぶ", "やめる"], mChoices: ["ຕັດສິນໃຈ", "ເລືອກ", "ຢຸດ / ຍົກເລີກ"] },
-            { kanji: "洗う", reading: "あらう", lao: "ຊັກ / ລ້າງ", rChoices: ["あらう", "あらうぬ", "ふく"], mChoices: ["ຊັກ / ລ້າງ", "ເຊັດ", "ທຳຄວາມສະອາດ"] },
-            { kanji: "減る", reading: "へる", lao: "ຫຼຸດລົງ", rChoices: ["へる", "ふえる", "きる"], mChoices: ["ຫຼຸດລົງ", "ເພີ່ມຂຶ້ນ", "ຕັດ"] },
-            { kanji: "燃える", reading: "もえる", lao: "ໄໝ້ / ຈູດໄດ້", rChoices: ["もえる", "きえる", "わかれる"], mChoices: ["ໄໝ້ / ຈູດໄດ້", "ດັບ / ຫາຍໄປ", "ແຍກຈາກກັນ"] },
-            { kanji: "特に", reading: "とくに", lao: "ໂດຍສະເພາະ", rChoices: ["とくに", "とくべつ", "だいたい"], mChoices: ["ໂດຍສະເພາະ", "ພິເສດ", "ສ່ວນໃຫຍ່"] },
-            { kanji: "特別", reading: "とくべつ", lao: "ພິເສດ", rChoices: ["とくべつ", "ふつう", "とくに"], mChoices: ["ພິເສດ", "ທຳມະດາ", "ໂດຍສະເພາະ"] },
-            { kanji: "申し込み", reading: "もうしこみ", lao: "ການສະໝັກ / ການແຈ້ງຄວາມຈຳນົງ", rChoices: ["もうしこみ", "もうしこみぬ", "よやく"], mChoices: ["ການສະໝັກ / ການແຈ້ງຄວາມຈຳນົງ", "ການຈອງ", "ການຍົກເລີກ"] },
-            { kanji: "米", reading: "こめ", lao: "ເຂົ້າສານ", rChoices: ["こめ", "ごはん", "おこめ"], mChoices: ["ເຂົ້າສານ", "ເຂົ້າສຸກ", "ເຂົ້າໜຽວ"] },
-            { kanji: "紙", reading: "かみ", lao: "ເຈ້ຍ", rChoices: ["かみ", "かみぬ", "かみお"], mChoices: ["ເຈ້ຍ", "ຜົມ", "ແວ່ນຕາ"] },
-            { kanji: "続ける", reading: "つづける", lao: "ເຮັດຕໍ່ເນື່ອງ / ດຳເນີນຕໍ່", rChoices: ["つづける", "つたえる", "はじめる"], mChoices: ["ເຮັດຕໍ່ເນື່ອງ / ດຳເນີນຕໍ່", "ແຈ້ງໃຫ້ຊາບ", "ເລີ່ມຕົ້ນ"] },
-            { kanji: "袋", reading: "ふくろ", lao: "ຖົງ", rChoices: ["ふくろ", "ふく", "かばん"], mChoices: ["ຖົງ", "ເສື້ອຜ້າ", "ກະເປົາ"] },
-            { kanji: "設定する", reading: "せっていする", lao: "ຕັ້ງຄ່າ", rChoices: ["せっていする", "せていする", "していする"], mChoices: ["ຕັ້ງຄ່າ", "ລະບຸ", "ປ່ຽນແປງ"] },
-            { kanji: "閉める", reading: "しめる", lao: "ອັດ / ປິດ (ປະຕູ, ປ່ອງຢ້ຽມ)", rChoices: ["しめる", "あける", "とめる"], mChoices: ["ອັດ / ປິດ (ປະຕູ, ປ່ອງຢ້ຽມ)", "ໄຂ / ເປີດ", "ຢຸດ"] },
-            { kanji: "開く", reading: "ひらく", lao: "ເປີດ / ໄຂ (ງານ, ປຶ້ມ, ປະຕູ)", rChoices: ["ひらく", "あく", "しまる"], mChoices: ["ເປີດ / ໄຂ (ງານ, ປຶ້ມ, ປະຕູ)", "ປິດ", "ເລີ່ມຕົ້ນ"] },
-            { kanji: "集まる", reading: "あつまる", lao: "ໂຮມກັນ / ເຕົ້າໂຮມ", rChoices: ["あつまる", "あつめる", "はじまる"], mChoices: ["ໂຮມກັນ / ເຕົ້າໂຮມ", "ເກັບຮວບຮວມ", "ເລີ່ມຕົ້ນ"] }
-        ]
-    },
-    7: {
-        title: "ບົດຮຽນ 7: Unit Seven (1-45)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "上", reading: "うえ", lao: "ຂ້າງເທິງ / ເທິງ", rChoices: ["うえ", "した", "なか"], mChoices: ["ຂ້າງເທິງ", "ຂ້າງລຸ່ມ", "ຂ້າງໃນ"] },
-            { kanji: "上手（な）", reading: "じょうず", lao: "ເກັ່ງ / ຊຳນານ", rChoices: ["じょうず", "へた", "じょおず"], mChoices: ["ເກັ່ງ / ຊຳນານ", "ອ່ອນແອ / ບໍ່ເກັ່ງ", "ງາມ"] },
-            { kanji: "今", reading: "いま", lao: "ດຽວນີ້ / ຕອນນີ້", rChoices: ["いま", "まえ", "あと"], mChoices: ["ດຽວນີ້ / ຕອນນີ້", "ເມື່ອກ່ອນ", "ທີຫຼັງ"] },
-            { kanji: "今年", reading: "ことし", lao: "ປີນີ້", rChoices: ["ことし", "きょねん", "らいねん"], mChoices: ["ປີນີ້", "ປີກາຍນີ້", "ປີໜ້າ"] },
-            { kanji: "今度", reading: "こんど", lao: "ເທື່ອນີ້ / ເທື່ອໜ້າ", rChoices: ["こんど", "いま", "つぎ"], mChoices: ["ເທື່ອນີ້ / ເທື່ອໜ້າ", "ເທື່ອແລ້ວນີ້", "ທຸກຄັ້ງ"] },
-            { kanji: "今月", reading: "こんげつ", lao: "ເດືອນນີ້", rChoices: ["こんげつ", "せんげつ", "らいげつ"], mChoices: ["ເດືອນນີ້", "ເດືອນແລ້ວ", "ເດືອນໜ້າ"] },
-            { kanji: "今週", reading: "こんしゅう", lao: "ອາທິດນີ້", rChoices: ["こんしゅう", "せんしゅう", "らいしゅう"], mChoices: ["ອາທິດນີ້", "ອາທິດແລ້ວ", "ອາທິດໜ້າ"] },
-            { kanji: "何", reading: "なに", lao: "ຫຍັງ / ແມ່ນຫຍັງ", rChoices: ["なに", "なん", "だれ"], mChoices: ["ຫຍັງ / ແມ່ນຫຍັງ", "ໃຜ", "ໃສ / ຢູ່ໃສ"] },
-            { kanji: "先週", reading: "せんしゅう", lao: "ອາທິດແລ້ວ", rChoices: ["せんしゅう", "こんしゅう", "らいしゅう"], mChoices: ["ອາທິດແລ້ວ", "ອາທິດນີ້", "ອາທິດໜ້າ"] },
-            { kanji: "南", reading: "みなみ", lao: "ທິດໃຕ້", rChoices: ["みなみ", "きた", "ひがし"], mChoices: ["ທິດໃຕ້", "ທິດເໜືອ", "ທິດຕາເວັນອອກ"] },
-            { kanji: "去年", reading: "きょねん", lao: "ປີກາຍນີ້", rChoices: ["きょねん", "ことし", "らいねん"], mChoices: ["ປີກາຍນີ້", "ປີນີ້", "ປີໜ້າ"] },
-            { kanji: "友達", reading: "ともだち", lao: "ໝູ່ / ເພື່ອນ", rChoices: ["ともだち", "かぞく", "せんせい"], mChoices: ["ໝູ່ / ເພື່ອນ", "ຄອບຄົວ", "ອາຈານ"] },
-            { kanji: "古い", reading: "ふるい", lao: "ເກົ່າ", rChoices: ["ふるい", "あたらしい", "わるい"], mChoices: ["ເກົ່າ", "ໃໝ່", "ບໍ່ດີ / ເລວ"] },
-            { kanji: "困る", reading: "こまる", lao: "ເດືອດຮ້ອນ / ລຳບາກ", rChoices: ["こまる", "おこる", "とまる"], mChoices: ["ເດືອດຮ້ອນ / ລຳບາກ", "ຮ້າຍ / ຄຽດ", "ຢຸດ"] },
-            { kanji: "好き（な）", reading: "すき", lao: "ມັກ", rChoices: ["すき", "きらい", "きれい"], mChoices: ["ມັກ", "ຊັງ / ບໍ່ມັກ", "ງາມ"] },
-            { kanji: "家", reading: "いえ", lao: "ເຮືອນ / ບ້ານ", rChoices: ["いえ", "にわ", "へや"], mChoices: ["ເຮືອນ / ບ້ານ", "ຫ້ອງ", "ຫ້ອງການ"] },
-            { kanji: "家族", reading: "かぞく", lao: "ຄອບຄົວ", rChoices: ["かぞく", "ともだち", "きょうだい"], mChoices: ["ຄອບຄົວ", "ໝູ່ເພື່ອນ", "ພີ່ນ້ອງ"] },
-            { kanji: "広い", reading: "ひろい", lao: "ກວ້າງ", rChoices: ["ひろい", "せまい", "おおい"], mChoices: ["ກວ້າງ", "ແຄບ", "ຫຼາຍ"] },
-            { kanji: "広場", reading: "ひろば", lao: "ເດີ່ນກວ້າງ / ສະໜາມຫຼວງ", rChoices: ["ひろば", "こうえん", "ばしょ"], mChoices: ["ເດີ່ນກວ້າງ / ສະໜາມຫຼວງ", "ສວນສາທາລະນະ", "ສະຖານທີ່"] },
-            { kanji: "捨てる", reading: "すてる", lao: "ຖິ້ມ", rChoices: ["すてる", "ひろう", "うる"], mChoices: ["ຖິ້ມ", "ເກັບ", "ຂາຍ"] },
-            { kanji: "新しい", reading: "あたらしい", lao: "ໃໝ່", rChoices: ["あたらしい", "ふるい", "うつくしい"], mChoices: ["ໃໝ່", "ເກົ່າ", "ງາມ"] },
-            { kanji: "昨年", reading: "さくねん", lao: "ປີກາຍນີ້ (ທາງການ)", rChoices: ["さくねん", "せんねん", "ことし"], mChoices: ["ປີກາຍນີ້ (ທາງການ)", "ປີນີ້", "ປີໜ້າ"] },
-            { kanji: "本", reading: "ほん", lao: "ປຶ້ມ", rChoices: ["ほん", "ざっし", "てちょう"], mChoices: ["ປຶ້ມ", "ວາລະສານ", "ປຶ້ມຂຽນ"] },
-            { kanji: "来年", reading: "らいねん", lao: "ປີໜ້າ", rChoices: ["らいねん", "ことし", "きょねん"], mChoices: ["ປີໜ້າ", "ປີນີ້", "ປີກາຍນີ້"] },
-            { kanji: "来週", reading: "らいしゅう", lao: "ອາທິດໜ້າ", rChoices: ["らいしゅう", "こんしゅう", "せんしゅう"], mChoices: ["ອາທິດໜ້າ", "ອາທິດນີ້", "ອາທິດແລ້ວ"] },
-            { kanji: "東", reading: "ひがし", lao: "ທິດຕາເວັນອອກ", rChoices: ["ひがし", "にし", "きた"], mChoices: ["ທິດຕາເວັນອອກ", "ທິດຕາເວັນຕົກ", "ທິດເໜືອ"] },
-            { kanji: "東京", reading: "とうきょう", lao: "ໂຕກຽວ", rChoices: ["とうきょう", "きょうと", "おおさか"], mChoices: ["ໂຕກຽວ", "ກຽວໂຕ", "ໂອຊາກ້າ"] },
-            { kanji: "毎年", reading: "まいとし", lao: "ທຸກໆປີ", rChoices: ["まいとし", "まいにち", "まいつき"], mChoices: ["ທຸກໆປີ", "ທຸກໆມື້", "ທຸກໆເດືອນ"] },
-            { kanji: "水", reading: "みず", lao: "ນ້ຳ / ນ້ຳເປົ່າ", rChoices: ["みず", "おゆ", "おちゃ"], mChoices: ["ນ້ຳ / ນ້ຳເປົ່າ", "ນ້ຳຮ້ອນ", "ນ້ຳຊາ"] },
-            { kanji: "水道", reading: "すいどう", lao: "ນ້ຳປະປາ", rChoices: ["すいどう", "でんき", "がす"], mChoices: ["ນ້ຳປະປາ", "ໄຟຟ້າ", "ແກັສ"] },
-            { kanji: "温度", reading: "おんど", lao: "ອຸນຫะພູມ", rChoices: ["おんど", "しつど", "てんき"], mChoices: ["ອຸນຫะພູມ", "ຄວາມຊຸ່ມ", "ອາກາດ"] },
-            { kanji: "牛肉", reading: "ぎゅうにく", lao: "ຊີ້ນງົວ", rChoices: ["ぎゅうにく", "ぶたにく", "とりにく"], mChoices: ["ຊີ້ນງົວ", "ຊີ້ນໝູ", "ຊີ້ນໄກ່"] },
-            { kanji: "留学する", reading: "りゅうがくする", lao: "ໄປຮຽນຕໍ່ຕ່າງປະເທດ", rChoices: ["りゅうがくする", "けんがくする", "りょこうする"], mChoices: ["ໄປຮຽນຕໍ່ຕ່າງປະເທດ", "ໄປຢ້ຽມຊົມ", "ໄປທ່ອງທ່ຽວ"] },
-            { kanji: "種類", reading: "しゅるい", lao: "ຊະນິດ / ປະເພດ", rChoices: ["しゅるい", "しゅみ", "ぶんるい"], mChoices: ["ຊະນິດ / ປະເພດ", "ວຽກອະດິເຣກ", "ການແບ່ງປະເພດ"] },
-            { kanji: "聞きます", reading: "ききます", lao: "ຟັງ / ຖາມ", rChoices: ["ききます", "みます", "はなします"], mChoices: ["ຟັງ / ຖາມ", "ເບິ່ງ", "ເວົ້າ"] },
-            { kanji: "肉", reading: "にく", lao: "ຊີ້ນ", rChoices: ["にく", "さかな", "やさい"], mChoices: ["ຊີ້ນ", "ປາ", "ຜັກ"] },
-            { kanji: "西", reading: "にし", lao: "ທິດຕາເວັນຕົກ", rChoices: ["にし", "ひがし", "みなみ"], mChoices: ["ທິດຕາເວັນຕົກ", "ທິດຕາເວັນອອກ", "ທິດໃຕ້"] },
-            { kanji: "誕生日", reading: "たんじょうび", lao: "ວັນເກີດ", rChoices: ["たんじょうび", "お正月", "まつり"], mChoices: ["ວັນເກີດ", "ວັນປີໃໝ່", "ງານບຸນ"] },
-            { kanji: "豚肉", reading: "ぶたにく", lao: "ຊີ້ນໝູ", rChoices: ["ぶたにく", "ぎゅうにく", "とりにく"], mChoices: ["ຊີ້ນໝູ", "ຊີ້ນງົວ", "ຊີ້ນໄກ່"] },
-            { kanji: "週末", reading: "しゅうまつ", lao: "ທ້າຍອາທິດ", rChoices: ["しゅうまつ", "しゅうかん", "ねんまつ"], mChoices: ["ທ້າຍອາທິດ", "ໄລຍະເວລາໜຶ່ງອາທິດ", "ທ້າຍປີ"] },
-            { kanji: "進む", reading: "すすむ", lao: "ກ້າວໜ້າ / ຄືບໜ້າ / ເດີນໜ້າ", rChoices: ["すすむ", "あつまる", "あがる"], mChoices: ["ກ້າວໜ້າ / ຄືບໜ້າ / ເດີນໜ້າ", "ໂຮມກັນ", "ຂຶ້ນ"] },
-            { kanji: "食事", reading: "しょくじ", lao: "ອາຫານ / ການຮັບປະທານອາຫານ", rChoices: ["しょくじ", "りょうり", "しょくどう"], mChoices: ["ອາຫານ / ການຮັບປະທານອາຫານ", "ການເຮັດອາຫານ", "ໂຮງອາຫານ"] },
-            { kanji: "食堂", reading: "しょくどう", lao: "ໂຮງອາຫານ / ຮ້ານອາຫານ", rChoices: ["しょくどう", "きょうしつ", "かいしゃ"], mChoices: ["ໂຮງອາຫານ / ຮ້ານອາຫານ", "ຫ້ອງຮຽນ", "ບໍລິສັດ"] },
-            { kanji: "飲み物", reading: "のみもの", lao: "ເຄື່ອງດື່ມ", rChoices: ["のみもの", "たべもの", "かいもの"], mChoices: ["ເຄື່ອງດື່ມ", "ຂອງກິນ / ອາຫານ", "ການຊື້ເຄື່ອງ"] },
-            { kanji: "魚", reading: "さかな", lao: "ປາ", rChoices: ["さかな", "にく", "たまご"], mChoices: ["ປາ", "ຊີ້ນ", "ໄຂ່"] }
-        ]
-    },
-    8: {
-        title: "ບົດຮຽນ 8: Unit Eight (1-35)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "3階", reading: "さんがい", lao: "ຊັ້ນ 3", rChoices: ["さんがい", "さんかい", "さんがいぬ"], mChoices: ["ຊັ້ນ 3", "3 ເທື່ອ", "3 ຄົນ"] },
-            { kanji: "人", reading: "ひと", lao: "ຄົນ", rChoices: ["ひと", "じん", "にん"], mChoices: ["ຄົນ", "ໝູ່", "ຄອບຄົວ"] },
-            { kanji: "仕事", reading: "しごと", lao: "ວຽກ / ງານ", rChoices: ["しごと", "じごと", "じむ"], mChoices: ["ວຽກ / ງານ", "ການຮຽນ", "ວຽກອະດິເຣກ"] },
-            { kanji: "何人", reading: "なんにん", lao: "ຈັກຄົນ / ສັນຊາດຫຍັງ", rChoices: ["なんにん", "なにじん", "なんびと"], mChoices: ["ຈັກຄົນ / ສັນຊາດຫຍັງ", "ຈັກເທື່ອ", "ໃຜ"] },
-            { kanji: "何回", reading: "なんかい", lao: "ຈັກເທື່ອ / ຊັ້ນໃດ", rChoices: ["なんかい", "なんがい", "なにがい"], mChoices: ["ຈັກເທື່ອ / ຊັ້ນໃດ", "ຈັກຄົນ", "ແມ່ນຫຍັງ"] },
-            { kanji: "働く", reading: "はたらく", lao: "ເຮັດວຽກ", rChoices: ["はたらく", "うごく", "つくる"], mChoices: ["ເຮັດວຽກ", "ເຄື່ອນໄຫວ", "ຜະລິດ"] },
-            { kanji: "元気", reading: "げんき", lao: "ສະບາຍດີ / ແຂງແຮງ", rChoices: ["げんき", "てんき", "びょうき"], mChoices: ["ສະບາຍດີ / ແຂງແຮງ", "ອາກາດ", "ເຈັບປ່ວຍ"] },
-            { kanji: "入ります", reading: "はいります", lao: "ເຂົ້າ / ເຂົ້າໄປ", rChoices: ["はいります", "いれます", "でます"], mChoices: ["ເຂົ້າ / ເຂົ້າໄປ", "ໃສ່ເຂົ້າໄປ", "ອອກໄປ"] },
-            { kanji: "入れる", reading: "いれる", lao: "ໃສ່ / ໃສ່ເຂົ້າໄປ", rChoices: ["いれる", "はいる", "だす"], mChoices: ["ໃສ່ / ໃສ່ເຂົ້າໄປ", "ເຂົ້າໄປ", "ເອົາອອກ"] },
-            { kanji: "入力", reading: "にゅうりょく", lao: "ການປ້ອນຂໍ້ມູນ / ຄີຂໍ້ມູນ", rChoices: ["にゅうりょく", "じゅうりょく", "にゅうがく"], mChoices: ["ການປ້ອນຂໍ້ມູນ / ຄີຂໍ້ມູນ", "ການສະໝັກຮຽນ", "ການສະແດງຜົນ"] },
-            { kanji: "入口", reading: "いりぐち", lao: "ທາງເຂົ້າ", rChoices: ["いりぐち", "でぐち", "まどぐち"], mChoices: ["ທາງເຂົ້າ", "ທາງອອກ", "ຊ່ອງບໍລິການ"] },
-            { kanji: "入院", reading: "にゅういん", lao: "ການເຂົ້າໂຮງໝໍ / ນອນໂຮງໝໍ", rChoices: ["にゅういん", "たいいん", "にゅうがく"], mChoices: ["ການເຂົ້າໂຮງໝໍ / ນອນໂຮງໝໍ", "ການອອກໂຮງໝໍ", "ການເຂົ້າຮຽນ"] },
-            { kanji: "出かける", reading: "でかける", lao: "ອອກໄປຂ້າງນອກ", rChoices: ["でかける", "でる", "かける"], mChoices: ["ອອກໄປຂ້າງນອກ", "ອອກ", "ໂທ (ໂທລະສັບ)"] },
-            { kanji: "出す", reading: "だす", lao: "ເອົາອອກ / ສົ່ງ (ວຽກບ້ານ)", rChoices: ["だす", "でる", "いれる"], mChoices: ["ເອົາອອກ / ສົ່ງ (ວຽກບ້ານ)", "ອອກ", "ໃສ່ເຂົ້າ"] },
-            { kanji: "出る", reading: "でる", lao: "ອອກ / ເຂົ້າຮ່ວມ (ງານ)", rChoices: ["でる", "だす", "はいる"], mChoices: ["ອອກ / ເຂົ້າຮ່ວມ (ງານ)", "ເອົາອອກ", "ເຂົ້າ"] },
-            { kanji: "出口", reading: "でぐち", lao: "ທາງອອກ", rChoices: ["でぐち", "いりぐち", "かいぐち"], mChoices: ["ທາງອອກ", "ທາງເຂົ້າ", "ປາກ"] },
-            { kanji: "出発する", reading: "しゅっぱつする", lao: "ອອກເດີນທາງ", rChoices: ["しゅっぱつする", "とうちゃくする", "じゅんびする"], mChoices: ["ອອກເດີນທາງ", "ມາຮອດ", "ກຽມພ້ອມ"] },
-            { kanji: "午後", reading: "ごご", lao: "ຕອນບ່າຍ (PM)", rChoices: ["ごご", "ごぜん", "よる"], mChoices: ["ຕອນບ່າຍ (PM)", "ຕອນເຊົ້າ (AM)", "ຕອນກາງຄືນ"] },
-            { kanji: "口", reading: "くち", lao: "ປາກ", rChoices: ["くち", "め", "みみ"], mChoices: ["ປາກ", "ຕາ", "ຫູ"] },
-            { kanji: "天気", reading: "てんき", lao: "ອາກາດ / ສະພາບອາກາດ", rChoices: ["てんき", "げんき", "でんき"], mChoices: ["ອາກາດ / ສະພາບອາກາດ", "ສະບາຍດີ", "ໄຟຟ້າ"] },
-            { kanji: "学校", reading: "がっこう", lao: "ໂຮງຮຽນ", rChoices: ["がっこう", "こうこう", "きょうしつ"], mChoices: ["ໂຮງຮຽນ", "ໂຮງຮຽນມັດທະຍົມປາຍ", "ຫ້ອງຮຽນ"] },
-            { kanji: "工事", reading: "こうじ", lao: "ການກໍ່ສ້າງ", rChoices: ["こうじ", "しごと", "しょくじ"], mChoices: ["ການກໍ່ສ້າງ", "ວຽກ / ງານ", "ອາຫານ"] },
-            { kanji: "引く", reading: "ひく", lao: "ດຶງ / ລົບ / ເປີດ (ວັດຈະນານຸກົມ)", rChoices: ["ひく", "おす", "きる"], mChoices: ["ດຶງ / ລົບ / ເປີດ (ວັດຈະນານຸກົມ)", "ຍູ້ / ກົດ", "ຕັດ"] },
-            { kanji: "後ろ", reading: "うしろ", lao: "ຂ້າງຫຼັງ / ທາງຫຼັງ", rChoices: ["うしろ", "まえ", "よこ"], mChoices: ["ຂ້າງຫຼັງ / ທາງຫຼັງ", "ຂ້າງໜ້າ", "ຂ້າງໆ"] },
-            { kanji: "忙しい", reading: "いそがしい", lao: "ຍາກ / ບໍ່ມີເວລາຫວ່າງ", rChoices: ["いそがしい", "ひまな", "たのしい"], mChoices: ["ຍາກ / ບໍ່ມີເວລາຫວ່າງ", "ຫວ່າງ", "ມ່ວນຊື່ນ"] },
-            { kanji: "押す", reading: "おす", lao: "ຍູ້ / ກົດ", rChoices: ["おす", "ひく", "あける"], mChoices: ["ຍູ້ / ກົດ", "ດຶງ", "ເປີດ"] },
-            { kanji: "横", reading: "よこ", lao: "ຂ້າງໆ / ດ້ານຂ້າງ", rChoices: ["よこ", "まえ", "うしろ"], mChoices: ["ຂ້າງໆ / ດ້ານຂ້າງ", "ຂ້າງໜ້າ", "ຂ້າງຫຼັງ"] },
-            { kanji: "犬", reading: "いぬ", lao: "ໝາ", rChoices: ["いぬ", "ねこ", "とり"], mChoices: ["ໝາ", "ແມວ", "ນົກ"] },
-            { kanji: "生産する", reading: "せいさんする", lao: "ຜະລິດ", rChoices: ["せいさんする", "ちゅうもんする", "けんさする"], mChoices: ["ຜະລິດ", "ສັ່ງຊື້", "ກວດສອບ"] },
-            { kanji: "用事", reading: "ようじ", lao: "ວຽກ / ທຸລະ", rChoices: ["ようじ", "しごと", "よてい"], mChoices: ["ວຽກ / ທຸລະ", "ວຽກປະຈຳ", "ກຳນົດການ"] },
-            { kanji: "病気", reading: "びょうき", lao: "ພະຍາດ / ອາການເຈັບປ່ວຍ", rChoices: ["びょうき", "げんき", "てんき"], mChoices: ["ພະຍາດ / ອາການເຈັບປ່ວຍ", "ສະບາຍດີ", "ອາກາດ"] },
-            { kanji: "窓口", reading: "まどぐち", lao: "ຊ່ອງບໍລິການ / ເຄົາເຕີ", rChoices: ["まどぐち", "いりぐち", "でぐち"], mChoices: ["ຊ່ອງບໍລິການ / ເຄົາເຕີ", "ທາງເຂົ້າ", "ທາງອອກ"] },
-            { kanji: "記入します", reading: "きにゅうします", lao: "ກອກ (ຂໍ້ມູນ/ແບບຟອມ)", rChoices: ["きにゅうします", "かきます", "よみます"], mChoices: ["ກອກ (ຂໍ້ມູນ/ແບບຟອມ)", "ຂຽນ", "ອ່ານ"] },
-            { kanji: "食事", reading: "しょくじ", lao: "ອາຫານ / ການຮັບປະທານອາຫານ", rChoices: ["しょくじ", "りょうり", "たくはん"], mChoices: ["ອາຫານ / ການຮັບປະທານອາຫານ", "ການເຮັດອາຫານ", "ເຂົ້າສຸກ"] },
-            { kanji: "高校", reading: "こうこう", lao: "ໂຮງຮຽນມັດທະຍົມຕອນປາຍ", rChoices: ["こうこう", "がっこう", "だいがく"], mChoices: ["ໂຮງຮຽນມັດທະຍົມຕອນປາຍ", "ໂຮງຮຽນ", "ມະຫາວິທະຍາໄລ"] }
-        ]
-    },
-    9: {
-        title: "ບົດຮຽນ 9: Unit Nine (1-30)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "不便", reading: "ふべん", lao: "ບໍ່ສະດວກ", rChoices: ["ふべん", "べんり", "ぶべん"], mChoices: ["ບໍ່ສະດວກ", "ສະດວກ", "ຍາກ"] },
-            { kanji: "事故", reading: "じこ", lao: "ອຸບັດຕິເຫດ", rChoices: ["じこ", "じしん", "じじ"], mChoices: ["ອຸບັດຕິເຫດ", "ແຜ່ນດິນໄຫວ", "ເຫດການ"] },
-            { kanji: "作る", reading: "つくる", lao: "ເຮັດ / ຜະລິດ / ປຸງແຕ່ງ", rChoices: ["つつく", "つくる", "うる"], mChoices: ["ເຮັດ / ຜະລິດ / ປຸງແຕ່ງ", "ຊື້", "ຂາຍ"] },
-            { kanji: "便利", reading: "べんり", lao: "ສະດວກ / ສະດວກສະບາຍ", rChoices: ["べんり", "ふべん", "へんり"], mChoices: ["ສະດວກ / ສະດວກສະບາຍ", "ບໍ່ສະດວກ", "ຍາກ"] },
-            { kanji: "利用する", reading: "りようする", lao: "ໃຊ້ / ນຳໃຊ້", rChoices: ["りようする", "りょこうする", "しようする"], mChoices: ["ໃຊ້ / ນຳໃຊ້", "ທ່ອງທ່ຽວ", "ຕັ້ງຄ່າ"] },
-            { kanji: "博物館", reading: "はくぶつかん", lao: "ພິພິທະພັນ", rChoices: ["はくぶつかん", "としょかん", "りょかん"], mChoices: ["ພິພິທະພັນ", "ຫໍສະໝຸດ", "ໂຮງແຮມແບບຍີ່ປຸ່ນ"] },
-            { kanji: "台風", reading: "たいふう", lao: "ພາຍຸໄຕ້ຝຸ່ນ", rChoices: ["たいふう", "たいふ", "だいふう"], mChoices: ["ພາຍຸໄຕ້ຝຸ່ນ", "ແຜ່ນດິນໄຫວ", "ຝົນຕົກ"] },
-            { kanji: "夕方", reading: "ゆうがた", lao: "ຕອນແລງ", rChoices: ["ゆうがた", "よる", "ひる"], mChoices: ["ຕອນແລງ", "ຕອນກາງຄືນ", "ຕອນທ່ຽງ"] },
-            { kanji: "多い", reading: "おおい", lao: "ຫຼາຍ", rChoices: ["おおい", "すくない", "ひろい"], mChoices: ["ຫຼາຍ", "ໜ້ອຍ", "ກວ້າງ"] },
-            { kanji: "少し", reading: "すこし", lao: "ໜ້ອຍໜຶ່ງ / ບຶດໜຶ່ງ", rChoices: ["すこし", "すくない", "たくさん"], mChoices: ["ໜ້ອຍໜຶ່ງ / ບຶດໜຶ່ງ", "ຫຼາຍ", "ກວ້າງ"] },
-            { kanji: "少ない", reading: "すくない", lao: "ໜ້ອຍ", rChoices: ["すくない", "おおい", "すこし"], mChoices: ["ໜ້ອຍ", "ຫຼາຍ", "ສັ້ນ"] },
-            { kanji: "店", reading: "みせ", lao: "ຮ້ານ / ຮ້ານຄ້າ", rChoices: ["みせ", "いえ", "えき"], mChoices: ["ຮ້ານ / ຮ້ານຄ້າ", "ເຮືອນ", "ສະຖານີ"] },
-            { kanji: "持つ", reading: "もつ", lao: "ຖື / ມີ / ຄອບຄອງ", rChoices: ["もつ", "まつ", "うる"], mChoices: ["ຖື / ມີ / ຄອບຄອງ", "ຖ້າ", "ຂາຍ"] },
-            { kanji: "明るい", reading: "あかるい", lao: "ແຈ້ງ / ສະຫວ່າງ / ຮ່າເຣິງ", rChoices: ["あかるい", "くらい", "あたたかい"], mChoices: ["ແຈ້ງ / ສະຫວ່າງ / ຮ່າເຣິງ", "ມຶດ", "ຮ້ອນ"] },
-            { kanji: "有名", reading: "ゆうめい", lao: "ມີຊື່ສຽງ", rChoices: ["ゆうめい", "なまえ", "ゆうめ"], mChoices: ["ມີຊື່ສຽງ", "ຊື່", "ຄວາມຝັນ"] },
-            { kanji: "町", reading: "まち", lao: "ເມືອງ", rChoices: ["まち", "みせ", "くに"], mChoices: ["ເມືອງ", "ຮ້ານຄ້າ", "ປະເທດ"] },
-            { kanji: "登ります", reading: "のぼります", lao: "ປີນ / ຂຶ້ນ (ພູ)", rChoices: ["のぼります", "のります", "おります"], mChoices: ["ປີນ / ຂຶ້ນ (ພູ)", "ຂີ່ (ລົດ)", "ລົງ (ລົດ)"] },
-            { kanji: "着る", reading: "きる", lao: "ນຸ່ງ / ໃສ່ (ເສື້ອຜ້າ)", rChoices: ["きる", "ぬぐ", "みる"], mChoices: ["ນຸ່ງ / ໃສ່ (ເສື້ອຜ້າ)", "ຖອດ", "ເບິ່ງ"] },
-            { kanji: "説明", reading: "せつめい", lao: "ການອະທິບາຍ", rChoices: ["せつめい", "しつもん", "こたえ"], mChoices: ["ການອະທິບາຍ", "ຄຳຖາມ", "ຄຳຕອບ"] },
-            { kanji: "連絡先", reading: "れんらくさき", lao: "ຂໍ້ມູນຕິດຕໍ່ / ສະຖານທີ່ຕິດຕໍ່", rChoices: ["れんらくさき", "れんらくし", "じゅうしょ"], mChoices: ["ຂໍ້ມູນຕິດຕໍ່ / ສະຖານທີ່ຕິດຕໍ່", "ທີ່ຢູ່", "ເບີໂທລະສັບ"] },
-            { kanji: "道", reading: "みち", lao: "ທາງ / ຖະໜົນ", rChoices: ["みち", "まち", "みせ"], mChoices: ["ທາງ / ຖະໜົນ", "ເມືອງ", "ຮ້ານຄ້າ"] },
-            { kanji: "遠い", reading: "とおい", lao: "ໄກ", rChoices: ["とおい", "ちかい", "おおい"], mChoices: ["ໄກ", "ໃກ້", "ຫຼາຍ"] },
-            { kanji: "郵便局", reading: "ゆうびんきょく", lao: "ໄປສະນີ", rChoices: ["ゆうびんきょく", "ぎんこう", "ゆうびんきょご"], mChoices: ["ໄປສະນີ", "ທະນາຄານ", "ໂຮງໝໍ"] },
-            { kanji: "難しい", reading: "むずかしい", lao: "ຍາກ", rChoices: ["むずかしい", "やさしい", "おもしろい"], mChoices: ["ຍາກ", "ງ່າຍ", "ມ່ວນຊື່ນ"] },
-            { kanji: "雨", reading: "あめ", lao: "ຝົນ", rChoices: ["あめ", "ゆき", "かぜ"], mChoices: ["ຝົນ", "ຫິມະ", "ລົມ"] },
-            { kanji: "雪", reading: "ゆき", lao: "ຫິມະ", rChoices: ["ゆき", "あめ", "くも"], mChoices: ["ຫິມະ", "ຝົນ", "ເມກ"] },
-            { kanji: "電気", reading: "でんき", lao: "ໄຟຟ້າ / ໄຟ", rChoices: ["でんき", "てんき", "でんしゃ"], mChoices: ["ໄຟຟ້າ / ໄຟ", "ອາກາດ", "ລົດໄຟ"] },
-            { kanji: "静かな", reading: "しずかな", lao: "ງຽບ / ສະຫງົບ", rChoices: ["しずかな", "にぎやかな", "きれいな"], mChoices: ["ງຽບ / ສະຫງົບ", "ຄຶກຄື້ນ", "ງາມ"] },
-            { kanji: "風", reading: "かぜ", lao: "ລົມ", rChoices: ["かぜ", "あめ", "ゆき"], mChoices: ["ລົມ", "ຝົນ", "ຫິມະ"] },
-            { kanji: "風邪", reading: "かぜ", lao: "ເປັນຫວັດ / ໄຂ້ຫວັດ", rChoices: ["かぜ", "ねつ", "びょうき"], mChoices: ["ເປັນຫວັດ / ໄຂ້ຫວັດ", "ເປັນໄຂ້", "ເຈັບຫົວ"] }
-        ]
-    },
-    10: {
-        title: "ບົດຮຽນ 10: Unit Ten (1-45)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "お湯", reading: "おゆ", lao: "ນ້ຳຮ້ອນ", rChoices: ["おゆ", "みず", "おちゃ"], mChoices: ["ນ້ຳຮ້ອນ", "ນ້ຳເປົ່າ", "ນ້ຳຊາ"] },
-            { kanji: "お願いします", reading: "おねがいします", lao: "ຂໍຄວາມກະລຸນາ / ລົບກວນດ້ວຍ", rChoices: ["おねがいします", "ありがとうごさいます", "すみません"], mChoices: ["ຂໍຄວາມກະລຸນາ / ລົບກວນດ້ວຍ", "ຂອບໃຈ", "ຂໍໂທດ"] },
-            { kanji: "下手", reading: "へた", lao: "ບໍ່ເກັ່ງ / ບໍ່ຊຳນານ", rChoices: ["へた", "じょうず", "にがて"], mChoices: ["ບໍ່ເກັ່ງ / ບໍ່ຊຳນານ", "ເກັ່ງ", "ຍາກ"] },
-            { kanji: "使う", reading: "つかう", lao: "ໃຊ້", rChoices: ["つかう", "つくる", "まつ"], mChoices: ["ໃຊ້", "ເຮັດ", "ຖ້າ"] },
-            { kanji: "働きます", reading: "はたらきます", lao: "ເຮັດວຽກ", rChoices: ["はたらきます", "やすみます", "うごきます"], mChoices: ["ເຮັດວຽກ", "ພັກຜ່ອນ", "ເຄື່ອນໄຫວ"] },
-            { kanji: "切る", reading: "きる", lao: "ຕັດ", rChoices: ["きる", "くる", "きるぬ"], mChoices: ["ຕັດ", "ມາ", "ນຸ່ງ (ເສື້ອຜ້າ)"] },
-            { kanji: "別に", reading: "べつに", lao: "ບໍ່ມີຫຍັງເປັນພິເສດ / ບໍ່ເປັນຫຍັງ", rChoices: ["べつに", "とくに", "ほんとうに"], mChoices: ["ບໍ່ມີຫຍັງເປັນພິເສດ / ບໍ່ເປັນຫຍັງ", "ໂດຍສະເພາะ", "ແທ້ໆ"] },
-            { kanji: "到着する", reading: "とうちゃくする", lao: "ມາຮອດ / ເຖິງ", rChoices: ["とうちゃくする", "しゅっぱつする", "じゅんびする"], mChoices: ["ມາຮອດ / ເຖິງ", "ອອກເດີນທາງ", "ກຽມພ້ອມ"] },
-            { kanji: "取る", reading: "とる", lao: "ຢິບ / ຈັບ / ເອົາ", rChoices: ["とる", "みる", "うる"], mChoices: ["ຢິບ / ຈັບ / ເອົາ", "ເບິ່ງ", "ຂາຍ"] },
-            { kanji: "吸う", reading: "すう", lao: "ສູບ (ຢາ) / ດູດ", rChoices: ["すう", "はく", "のむ"], mChoices: ["ສູບ (ຢາ) / ດູດ", "ຫາຍໃຈອອກ", "ດື່ມ"] },
-            { kanji: "味", reading: "あじ", lao: "ລົດຊາດ", rChoices: ["あじ", "おと", "におい"], mChoices: ["ລົດຊາດ", "ສຽງ", "ກິ່ນ"] },
-            { kanji: "図書館", reading: "としょかん", lao: "ຫໍສະໝຸດ", rChoices: ["としょかん", "たいしかん", "はくぶつかん"], mChoices: ["ຫໍສະໝຸດ", "ສະຖານທູດ", "ພິພິທະພັນ"] },
-            { kanji: "急ぐ", reading: "いそぐ", lao: "ຟ້າວ / ເລັ່ງຮີບ", rChoices: ["いそぐ", "おそい", "はしる"], mChoices: ["ຟ້າວ / ເລັ່ງຮີບ", "ຊ້າ", "ແລ່ນ"] },
-            { kanji: "悪い", reading: "わるい", lao: "ບໍ່ດີ / ເລວ", rChoices: ["わるい", "いい", "からい"], mChoices: ["ບໍ່ດີ / ເລວ", "ດີ", "ເຜັດ"] },
-            { kanji: "故障", reading: "こしょう", lao: "ການເປ່ເພ / ເຄື່ອງຈັກຂັດຂ້ອງ", rChoices: ["こしょう", "こうじ", "しゅうり"], mChoices: ["ການເປ່ເພ / ເຄື່ອງຈັກຂັດຂ້ອງ", "ການກໍ່ສ້າງ", "ການສ້ອມແປງ"] },
-            { kanji: "数字", reading: "すうじ", lao: "ຕົວເລກ", rChoices: ["すうじ", "かんじ", "もじ"], mChoices: ["ຕົວເລກ", "ຕົວອັກສອນຄັນຈິ", "ຕົວອັກສອນ"] },
-            { kanji: "文化", reading: "ぶんか", lao: "ວັດທະນະທຳ", rChoices: ["ぶんか", "ぶんがく", "しんぶん"], mChoices: ["ວັດທະນະທຳ", "ວັນນະຄະດີ", "ໜັງສືພິມ"] },
-            { kanji: "早く", reading: "はやく", lao: "ໄວ / ເຊົ້າ (ໄວ)", rChoices: ["はやく", "おそく", "ゆっくり"], mChoices: ["ໄວ / ເຊົ້າ (ໄວ)", "ຊ້າ", "ຊ້າໆ / ສະບາຍໆ"] },
-            { kanji: "机", reading: "つくえ", lao: "ໂຕະ", rChoices: ["つくえ", "いす", "まど"], mChoices: ["ໂຕະ", "ຕັ່ງ", "ປ່ອງຢ້ຽມ"] },
-            { kanji: "歌手", reading: "かしゅ", lao: "ນັກຮ້ອງ", rChoices: ["かしゅ", "うんてんしゅ", "せんしゅ"], mChoices: ["ນັກຮ້ອງ", "ຄົນຂັບລົດ", "ນັກກິລາ"] },
-            { kanji: "止まる", reading: "とまる", lao: "ຢຸດ / ຈອດ (ລົດ)", rChoices: ["とまる", "とまるぬ", "はしる"], mChoices: ["ຢຸດ / ຈອດ (ລົດ)", "ແລ່ນ", "ຜ່ານ"] },
-            { kanji: "注文", reading: "ちゅうもん", lao: "ການສັ່ງຊື້ / ສັ່ງອາຫານ", rChoices: ["ちゅうもん", "ちゅうし", "せつめい"], mChoices: ["ການສັ່ງຊື້ / ສັ່ງອາຫານ", "ການຍົກເລີກ", "ການອະທິບາຍ"] },
-            { kanji: "泳ぐ", reading: "およぐ", lao: "ລອຍນ້ຳ", rChoices: ["およぐ", "はしる", "とぶ"], mChoices: ["ລອຍນ້ຳ", "ແລ່ນ", "ບິນ"] },
-            { kanji: "満足", reading: "まんぞく", lao: "ຄວາມເພິ່ງພໍໃຈ", rChoices: ["まんぞく", "ふまん", "まんそく"], mChoices: ["ຄວາມເພິ່ງພໍໃຈ", "ຄວາມບໍ່ພໍໃຈ", "ຄວາມກັງວົນ"] },
-            { kanji: "漢字", reading: "かんじ", lao: "ຕົວອັກສອນຄັນຈິ", rChoices: ["かんじ", "ひらがな", "すうじ"], mChoices: ["ຕົວອັກສອນຄັນຈິ", "ຮິລາການະ", "ຕົວເລກ"] },
-            { kanji: "無料", reading: "むりょう", lao: "ຟຣີ / ບໍ່ເສຍຄ່າ", rChoices: ["むりょう", "ゆうりょう", "りょうきん"], mChoices: ["ຟຣີ / ບໍ່ເສຍຄ່າ", "ເສຍຄ່າບໍລິການ", "ລາຄາ"] },
-            { kanji: "理由", reading: "りゆう", lao: "ເຫດຜົນ", rChoices: ["りゆう", "じゆう", "いみ"], mChoices: ["ເຫດຜົນ", "ອິດສະຫຼະ", "ຄວາມໝາຍ"] },
-            { kanji: "甘い", reading: "あまい", lao: "ຫວານ", rChoices: ["あまい", "からい", "にがい"], mChoices: ["ຫວານ", "ເຜັດ", "ຂົມ"] },
-            { kanji: "着く", reading: "つく", lao: "ຮອດ / ເຖິງ", rChoices: ["つく", "いく", "くる"], mChoices: ["ຮອດ / ເຖິງ", "ໄປ", "ມາ"] },
-            { kanji: "禁止", reading: "きんし", lao: "ການຫ້າມ / ຂໍ້ຫ້າມ", rChoices: ["きんし", "ちゅうし", "きょか"], mChoices: ["ການຫ້າມ / ຂໍ້ຫ້າມ", "ການຍົກເລີກ", "ການອະນຸຍາດ"] },
-            { kanji: "税別", reading: "ぜいべつ", lao: "ບໍ່ລວມພາສີ", rChoices: ["ぜいべつ", "ぜいこみ", "べつに"], mChoices: ["ບໍ່ລວມພາສີ", "ລວມພາສີ", "ຟຣີ"] },
-            { kanji: "空", reading: "そら", lao: "ທ້ອງຟ້າ", rChoices: ["そら", "うみ", "やま"], mChoices: ["ທ້ອງຟ້າ", "ທະເລ", "ພູເຂົາ"] },
-            { kanji: "終わる", reading: "おわる", lao: "ຈົບ / ສິ້ນສຸດ", rChoices: ["おわる", "はじまる", "つづく"], mChoices: ["ຈົບ / ສິ້ນສຸດ", "ເລີ່ມຕົ້ນ", "ເຮັດຕໍ່ເນື່ອງ"] },
-            { kanji: "絵", reading: "え", lao: "ຮູບແຕ້ມ / ຮູບພາບ", rChoices: ["え", "しゃしん", "えいが"], mChoices: ["ຮູບແຕ້ມ / ຮູບພາບ", "ຮູບຖ່າຍ", "ຮູບເງົາ"] },
-            { kanji: "自分", reading: "じぶん", lao: "ຕົວເອງ", rChoices: ["じぶん", "あなた", "じどう"], mChoices: ["ຕົວເອງ", "ເຈົ້າ", "ອັດຕະໂນມັດ"] },
-            { kanji: "自動", reading: "じどう", lao: "ອັດຕະໂນມັດ", rChoices: ["じどう", "じぶん", "しぜん"], mChoices: ["ອັດຕະໂນມັດ", "ຕົວເອງ", "ທຳມະຊາດ"] },
-            { kanji: "自然", reading: "しぜん", lao: "ທຳມະຊາດ", rChoices: ["しぜん", "じゆう", "じどう"], mChoices: ["ທຳມະຊາດ", "ອິດສະຫຼະ", "ອັດຕະໂນມັດ"] },
-            { kanji: "自由", reading: "じゆう", lao: "ອິດສະຫຼະ / ຕາມສະບາຍ", rChoices: ["じゆう", "じゅうち", "りゆう"], mChoices: ["ອິດສະຫຼະ / ຕາມສະບາຍ", "ເຫດຜົນ", "ຄວາມງຽບ"] },
-            { kanji: "苦労する", reading: "くろうする", lao: "ລຳບາກ / ເໜັດເໜື່ອຍ", rChoices: ["くろうする", "れんしゅうする", "あんしんする"], mChoices: ["ລຳບາກ / ເໜັດເໜື່ອຍ", "ຝຶກຊ້ອມ", "ສະບາຍໃຈ"] },
-            { kanji: "苦手", reading: "にがて", lao: "ບໍ່ຖະໜັດ / ບໍ່ເກັ່ງ / ບໍ່ມັກ", rChoices: ["にがて", "じょうず", "へた"], mChoices: ["ບໍ່ຖະໜັດ / ບໍ່ເກັ່ງ / ບໍ່ມັກ", "ເກັ່ງ / ຊຳນານ", "ງ່າຍ"] },
-            { kanji: "試合", reading: "しあい", lao: "ການແຂ່ງຂັນ (ກິລາ)", rChoices: ["しあい", "じけん", "れんしゅう"], mChoices: ["ການແຂ່ງຂັນ (ກິລາ)", "ເຫດການ / ຄະດີ", "ການຝຶກຊ້ອມ"] },
-            { kanji: "調べる", reading: "しらべる", lao: "ກວດສອບ / ຄົ້ນຫາข้อมูล", rChoices: ["しらべる", "かんがえる", "くらべる"], mChoices: ["ກວດສອບ / ຄົ້ນຫາข้อมูล", "ຄິດ", "ປຽບທຽບ"] },
-            { kanji: "運動する", reading: "うんどうする", lao: "ອອກກຳລັງກາຍ", rChoices: ["うんどうする", "うんてんする", "さんぽする"], mChoices: ["ອອກກຳລັງກາຍ", "ຂັບລົດ", "ຍ່າງຫຼິ້ນ"] },
-            { kanji: "都合", reading: "つごう", lao: "ຄວາມສະດວກ (ດ້ານເວລາ)", rChoices: ["つごう", "ぐあい", "よてい"], mChoices: ["ຄວາມສະດວກ (ດ້ານເວລາ)", "ອາການ / ສະພາບ", "ກຳນົດການ"] },
-            { kanji: "量", reading: "りょう", lao: "ປະລິມານ", rChoices: ["りょう", "りょうり", "おもり"], mChoices: ["ປະລິມານ", "ອາຫານ", "ນ້ຳໜັກ"] }
-        ]
-    },
-    11: {
-        title: "ບົດຮຽນ 11: Unit Eleven (1-50)",
-        icon: "fa-book-open",
-        data: [
-            { kanji: "お兄さん", reading: "おにいさん", lao: "ອ້າຍ (of other people)", rChoices: ["おにいさん", "おねえさん", "おとうとさん"], mChoices: ["ອ້າຍ (of other people)", "ເອື້ອຍ (of other people)", "ນ້ອງຊາຍ"] },
-            { kanji: "お姉さん", reading: "おねえさん", lao: "ເອື້ອຍ (of other people)", rChoices: ["おねえさん", "おにいさん", "いもうとさん"], mChoices: ["ເອື້ອຍ (of other people)", "ອ້າຍ (of other people)", "ນ້ອງສາວ"] },
-            { kanji: "お知らせ", reading: "おしらせ", lao: "ການແຈ້ງໃຫ້ຊາບ / ປະກາດ", rChoices: ["おしらせ", "お祝い", "しつもん"], mChoices: ["ການແຈ້ງໃຫ້ຊາບ / ປະກາດ", "ການສະຫຼອງ", "ຄຳຖາມ"] },
-            { kanji: "お祝い", reading: "おいわい", lao: "ການສະຫຼອງ / ຂອງຂວັນອວຍພອນ", rChoices: ["おいわい", "おまつり", "おそうしき"], mChoices: ["ການສະຫຼອງ / ຂອງຂວັນອວຍພອນ", "ງານບຸນ", "ງານສົບ"] },
-            { kanji: "ご飯", reading: "ごはん", lao: "ເຂົ້າ / ເຂົ້າສຸກ / ອາຫານ", rChoices: ["ごはん", "こめ", "パン"], mChoices: ["ເຂົ້າ / ເຂົ້າສຸກ / ອາຫານ", "ເຂົ້າສານ", "ເຂົ້າຈີ່"] },
-            { kanji: "両輪", reading: "りょうりん", lao: "ສອງລໍ້ / ລໍ້ທັງສອງຂ້າງ", rChoices: ["りょうりん", "りょうしん", "りょうり"], mChoices: ["ສອງລໍ້ / ລໍ້ທັງສອງຂ້າງ", "ພໍ່ແມ່", "ອາຫານ"] },
-            { kanji: "交通", reading: "こうつう", lao: "ການຄົມມະນາຄົມ / ການຈະລາຈອນ", rChoices: ["こうつう", "こうじ", "こうこう"], mChoices: ["ການຄົມມະນາຄົມ / ການຈະລາຈອນ", "ການກໍ່ສ້າງ", "ໂຮງຮຽນມັດທະຍົມປາຍ"] },
-            { kanji: "価格", reading: "かかく", lao: "ລາຄາ", rChoices: ["かかく", "かくにん", "かち"], mChoices: ["ລາຄາ", "ການກວດສອບ", "ຄຸນຄ່າ"] },
-            { kanji: "借りる", reading: "かりる", lao: "ຢືມ / ຂ້ອຍຢືມ (ຈາກຄົນອື່ນ)", rChoices: ["かりる", "かす", "かえす"], mChoices: ["ຢືມ / ຂ້ອຍຢືມ (ຈາກຄົນອື່ນ)", "ໃຫ້ຢືມ", "ສົ່ງຄືນ"] },
-            { kanji: "値段", reading: "ねだん", lao: "ລາຄາ", rChoices: ["ねだん", "かかく", "きだん"], mChoices: ["ລາຄາ", "ຄ່າບໍລິການ", "ເງິນສົດ"] },
-            { kanji: "兄", reading: "あに", lao: "ອ້າຍ (of mine)", rChoices: ["あに", "あね", "おにいさん"], mChoices: ["ອ້າຍ (of mine)", "ເອື້ອຍ (of mine)", "ອ້າຍ (of other people)"] },
-            { kanji: "卒業", reading: "そつぎょう", lao: "ການຈົບການສຶກສາ", rChoices: ["そつぎょう", "じゅぎょう", "にゅうがく"], mChoices: ["ການຈົບການສຶກສາ", "ຊົ່ວໂມງຮຽນ", "ການເຂົ້າຮຽນ"] },
-            { kanji: "合格", reading: "ごうかく", lao: "ການສອບເສັງຜ່ານ", rChoices: ["ごうかく", "ふごうかく", "さんか"], mChoices: ["ການສອບເສັງຜ່ານ", "ສອບເສັງຕົກ", "ການເຂົ້າຮ່ວມ"] },
-            { kanji: "商品", reading: "しょうひん", lao: "ສິນຄ້າ", rChoices: ["しょうひん", "さくひん", "しょくりょう"], mChoices: ["ສິນຄ້າ", "ຜົນງານສິລະປະ", "ອາຫານວັດຖຸດິບ"] },
-            { kanji: "問題", reading: "もんだい", lao: "ຄຳຖາມ / ໂຈດ / ບັນຫາ", rChoices: ["もんだい", "しつもん", "しあい"], mChoices: ["ຄຳຖາມ / ໂຈດ / ບັນຫາ", "ຄຳຖາມ (ທົ່ວໄປ)", "ການແຂ່ງຂັນ"] },
-            { kanji: "営業", reading: "えいぎょう", lao: "ການດຳເນີນທຸລະກິດ / ເປີດທຳການ", rChoices: ["えいぎょう", "じゅぎょう", "じぎょう"], mChoices: ["ການດຳເນີນທຸລະກິດ / ເປີດທຳການ", "ຊົ່ວໂມງຮຽນ", "ໂຄງການ"] },
-            { kanji: "塩", reading: "しお", lao: "ເກືອ", rChoices: ["しお", "さとう", "しょうゆ"], mChoices: ["ເກືອ", "ນ້ຳຕານ", "ສະອິ້ວ"] },
-            { kanji: "変わる", reading: "かわる", lao: "ປ່ຽນແປງ", rChoices: ["かわる", "かえる", "おわる"], mChoices: ["ປ່ຽນແປງ", "ກັບເຮືອນ", "ຈົບ"] },
-            { kanji: "夫", reading: "おっと", lao: "ສາມີ / ຜົວ (of mine)", rChoices: ["おっと", "つま", "かない"], mChoices: ["ສາມີ / ຜົວ (of mine)", "ເມຍ (of mine)", "ພັນລະຍາ"] },
-            { kanji: "女性", reading: "じょせい", lao: "ເພດຍິງ / ສຸພາບສະຕີ", rChoices: ["じょせい", "だんせい", "おんな"], mChoices: ["ເພດຍິງ / ສຸພາບສະຕີ", "ເພດຊາຍ", "ຜູ້ຍິງ"] },
-            { kanji: "妹", reading: "いもうと", lao: "ນ້ອງສາວ", rChoices: ["いもうと", "おとうと", "あね"], mChoices: ["ນ້ອງສາວ", "ນ້ອງຊາຍ", "ເອື້ອຍ"] },
-            { kanji: "妻", reading: "つま", lao: "ພັນລະຍາ / ເມຍ (of mine)", rChoices: ["つま", "おっと", "しゅじん"], mChoices: ["ພັນລະຍາ / ເມຍ (of mine)", "ສາມີ (of mine)", "ສາມີ (ຄົນອື່ນ)"] },
-            { kanji: "姉", reading: "あね", lao: "ເອື້ອຍ (of mine)", rChoices: ["あね", "あに", "おねえさん"], mChoices: ["ເອື້ອຍ (of mine)", "ອ້າຍ (of mine)", "ເອື້ອຍ (of other people)"] },
-            { kanji: "小美声", reading: "しょうびせい", lao: "ສຽງອັນໄພເລາະ / ສຽງນ້ອຍທີ່ງົດງາມ", rChoices: ["しょうびせい", "せいかく", "おんせい"], mChoices: ["ສຽງອັນໄພເລາະ / ສຽງນ້ອຍທີ່ງົດງາມ", "ນິດໄສ", "ສຽງ"] },
-            { kanji: "工事", reading: "こうじ", lao: "ການກໍ່ສ້າງ", rChoices: ["こうじ", "じこ", "しごと"], mChoices: ["ການກໍ່ສ້າງ", "ອຸބັດຕິເຫດ", "ວຽກງານ"] },
-            { kanji: "市", reading: "し", lao: "ເມືອງ / ເຂດເທສະບານ", rChoices: ["し", "くに", "まち"], mChoices: ["ເມືອງ / ເຂດເທສະບານ", "ປະເທດ", "ແຖວບ້ານ"] },
-            { kanji: "幸せ", reading: "しあわせ", lao: "ຄວາມສຸກ", rChoices: ["しあわせ", "しんぱい", "あんしん"], mChoices: ["ຄວາມສຸກ", "ຄວາມກັງວົນ", "ຄວາມສະບາຍໃຈ"] },
-            { kanji: "弟", reading: "おとうと", lao: "ນ້ອງຊາຍ", rChoices: ["おとうと", "いもうと", "あに"], mChoices: ["ນ້ອງຊາຍ", "ນ້ອງສາວ", "ອ້າຍ"] },
-            { kanji: "必要", reading: "ひつよう", lao: "ຈຳເປັນ / ສຳຄັນ", rChoices: ["ひつよう", "たいせつ", "ふよう"], mChoices: ["ຈຳເປັນ / ສຳຄັນ", "ບໍ່ຈຳເປັນ", "ອັນຕະລາຍ"] },
-            { kanji: "思う", reading: "おもう", lao: "ຄິດ / ຮູ້ສຶກ", rChoices: ["おもう", "かんがえる", "いう"], mChoices: ["ຄິດ / ຮູ້ສຶກ", "ພິຈາລະນາຢ່າງລະອຽດ", "ເວົ້າ"] },
-            { kanji: "情報", reading: "じょうほう", lao: "ຂໍ້ມູນ / ຂ່າວສານ", rChoices: ["じょうほう", "てんき", "にゅーす"], mChoices: ["ຂໍ້ມູນ / ຂ່າວສານ", "ອາກາດ", "ຂ່າວ"] },
-            { kanji: "授業", reading: "じゅぎょう", lao: "ຊົ່ວໂມງຮຽນ / ການຮຽນການສອນ", rChoices: ["じゅぎょう", "じしょ", "じゅうしょ"], mChoices: ["ຊົ່ວໂມງຮຽນ / ການຮຽນການສອນ", "ວັດຈະນານຸກົມ", "ທີ່ຢູ່"] },
-            { kanji: "普通", reading: "ふつう", lao: "ທົ່ວໄປ / ທຳມະດາ", rChoices: ["ふつう", "とくべつ", "べんり"], mChoices: ["ທົ່ວໄປ / ທຳມະດາ", "ພິເສດ", "ສະດວກ"] },
-            { kanji: "案内する", reading: "あんないする", lao: "ນຳທາງ / ພາທ່ຽວ / ແນະນຳ", rChoices: ["あんないする", "あんしんする", "あんぜんする"], mChoices: ["ນຳທາງ / ພາທ່ຽວ / ແນະນຳ", "ສະບາຍໃຈ", "ປອດໄພ"] },
-            { kanji: "油", reading: "あぶら", lao: "ນ້ຳມັນ", rChoices: ["あぶら", "みず", "おゆ"], mChoices: ["ນ້ຳມັນ", "ນ້ຳເປົ່າ", "ນ້ຳຮ້ອນ"] },
-            { kanji: "消す", reading: "けす", lao: "ມອດ (ໄຟ) / ປິດ (ໄຟ) / ລຶບ", rChoices: ["けす", "つける", "きる"], mChoices: ["ມອດ (ໄຟ) / ປິດ (ໄຟ) / ລຶບ", "ເປີດ (ໄຟ)", "ຕັດ"] },
-            { kanji: "焼く", reading: "やく", lao: "ປີ້ງ / ຢ້າງ / ອົບ", rChoices: ["やく", "にる", "あげる"], mChoices: ["ປີ້ງ / ຢ້າງ / ອົບ", "ຕົ້ມ", "ຈືນ"] },
-            { kanji: "男性", reading: "だんせい", lao: "ເພດຊາຍ / ສຸພາບສະບຸລຸດ", rChoices: ["だんせい", "じょせい", "おとこ"], mChoices: ["ເພດຊາຍ / ສຸພາບສະບຸລຸດ", "ເພດຍິງ", "ຜູ້ຊາຍ"] },
-            { kanji: "相談", reading: "そうだん", lao: "ການປຶກສາ / ຂໍຄຳແນະນຳ", rChoices: ["そうだん", "せつめい", "しつもん"], mChoices: ["ການປຶກສາ / ຂໍຄຳແນະນຳ", "ການອະທິບາຍ", "ຄຳຖາມ"] },
-            { kanji: "禁煙", reading: "きんえん", lao: "ການຫ້າມສູບຢາ", rChoices: ["きんえん", "きんし", "きゅうえん"], mChoices: ["ການຫ້າມສູບຢາ", "ຂໍ້ຫ້າມ", "ບ່ອນສູບຢາ"] },
-            { kanji: "結婚", reading: "けっこん", lao: "ການແຕ່ງງານ", rChoices: ["けっこん", "りこん", "しょうかい"], mChoices: ["ການແຕ່ງງານ", "ການຢ່າຮ້າງ", "ການແນະນຳ"] },
-            { kanji: "船", reading: "ふね", lao: "ເຮືອ", rChoices: ["ふね", "ひこうき", "くるま"], mChoices: ["ເຮືອ", "ເຮືອບິນ", "ລົດຍົນ"] },
-            { kanji: "色", reading: "いろ", lao: "ສີ", rChoices: ["いろ", "かお", "かたち"], mChoices: ["ສີ", "ໜ້າ", "ຮູບຮ່າງ"] },
-            { kanji: "質問", reading: "しつもん", lao: "ຄຳຖາມ", rChoices: ["しつもん", "こたえ", "せつめい"], mChoices: ["ຄຳຖາມ", "ຄຳຕອບ", "ການອະທິບາຍ"] },
-            { kanji: "軽い", reading: "かるい", lao: "ເບົາ", rChoices: ["かるい", "おもい", "ちいさい"], mChoices: ["ເບົາ", "ໜັກ", "ນ້ອຍ"] },
-            { kanji: "返す", reading: "かえす", lao: "ຄືນ / ສົ່ງຄືນ (ເຄື່ອງທີ່ຢືມ)", rChoices: ["かえす", "かりる", "かす"], mChoices: ["ຄືນ / ສົ່ງຄືນ (ເຄື່ອງທີ່ຢືມ)", "ຢືມ", "ໃຫ້ຢືມ"] },
-            { kanji: "遊ぶ", reading: "あそぶ", lao: "ຫຼິ້ນ / ທ່ຽວຫຼິ້ນ", rChoices: ["あそぶ", "はたらく", "やすむ"], mChoices: ["ຫຼິ້ນ / ທ່ຽວຫຼິ້ນ", "ເຮັດວຽກ", "ພັກຜ່ອນ"] },
-            { kanji: "運ぶ", reading: "はこぶ", lao: "ຂົນສົ່ງ / ແບກ / ຍ້າຍ", rChoices: ["はこぶ", "えらぶ", "よぶ"], mChoices: ["ຂົນສົ່ງ / ແບກ / ຍ້າຍ", "ເລືອກ", "ເອີ້ນ"] },
-            { kanji: "選ぶ", reading: "えらぶ", lao: "ເລືອກ", rChoices: ["えらぶ", "よぶ", "はこぶ"], mChoices: ["ເລືອກ", "ເອີ້ນ", "ຂົນສົ່ງ"] },
-            { kanji: "重い", reading: "おもい", lao: "ໜັກ", rChoices: ["おもい", "かるい", "おそい"], mChoices: ["ໜັກ", "ເບົາ", "ຊ້າ"] }
-        ]
-    }
-};
-
-    // System State parameters
-    let playerID = "";
-    let playerName = "";
-    let selectedLessonId = null;
-    let quizQuestions = []; // Combined, ordered array of Kanji checks (Reading -> Meaning sequentially)
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let timeElapsed = 0;
-    let timerInterval = null;
-    let hasAttemptedCurrent = false;
-    let incorrectKanjiList = [];
-
-    // Web Audio Synthesizer: Play premium system feedback sounds
-    function playAudioTone(type) {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if (ctx.state === 'suspended') {
-                ctx.resume();
+    <script>
+        // --- 1. ข้อมูลคันจิ JFT-Basic (A2) พร้อมคำอ่านสะกดประโยคตัวอย่างครบถ้วน ---
+        const kanjiData = [
+            {
+                kanji: "駅",
+                reading: "えき",
+                readingRomaji: "eki",
+                meaning: "สถานีรถไฟ",
+                exampleJp: "駅で友達に会います。",
+                exampleReading: "えき で ともだち に あいます (eki de tomodachi ni aimasu)",
+                exampleTh: "จะเจอเพื่อนที่สถานีรถไฟ",
+                speechText: "えき。えきでともだちにあいます。"
+            },
+            {
+                kanji: "車",
+                reading: "くるま",
+                readingRomaji: "kuruma",
+                meaning: "รถยนต์",
+                exampleJp: "新しい車を買いました。",
+                exampleReading: "あたらしい くるま を かいました (atarashii kuruma wo kaimashita)",
+                exampleTh: "ซื้อรถยนต์คันใหม่มาแล้วครับ",
+                speechText: "くるま。あたらしいくるまをかいました。"
+            },
+            {
+                kanji: "食べる",
+                reading: "たべる",
+                readingRomaji: "taberu",
+                meaning: "กิน",
+                exampleJp: "いっしょに昼ご飯を食べませんか。",
+                exampleReading: "いっしょに ひるごはん を たべませんか (issho ni hirugohan wo tabemasen ka)",
+                exampleTh: "ทานอาหารกลางวันด้วยกันไหมครับ",
+                speechText: "たべる。いっしょにひるごはんをたべませんか。"
+            },
+            {
+                kanji: "日本語",
+                reading: "にほんご",
+                readingRomaji: "nihongo",
+                meaning: "ภาษาญี่ปุ่น",
+                exampleJp: "日本語の勉強は面白いです。",
+                exampleReading: "にほんご の べんきょう は おもしろいです (nihongo no benkyou wa omoshiroi desu)",
+                exampleTh: "การเรียนภาษาญี่ปุ่นสนุกสนานน่าสนใจครับ",
+                speechText: "にほんご。にほんごのべんきょうはおもしろいです。"
+            },
+            {
+                kanji: "水",
+                reading: "みず",
+                readingRomaji: "mizu",
+                meaning: "น้ำ",
+                exampleJp: "冷たい水を飲みたいです。",
+                exampleReading: "つめたい みず を のみたいです (tsumetai mizu wo nomitai desu)",
+                exampleTh: "อยากดื่มน้ำเย็นๆ ครับ",
+                speechText: "みず。つめたいみずをのみたいです。"
+            },
+            {
+                kanji: "飲む",
+                reading: "のむ",
+                readingRomaji: "nomu",
+                meaning: "ดื่ม",
+                exampleJp: "毎朝コーヒーを飲みます。",
+                exampleReading: "まいあさ こーひー を のみます (maiasa ko-hi- wo nomimasu)",
+                exampleTh: "ดื่มกาแฟทุกเช้าครับ",
+                speechText: "のむ。まいあさこーひーをのみます。"
+            },
+            {
+                kanji: "行く",
+                reading: "いく",
+                readingRomaji: "iku",
+                meaning: "ไป",
+                exampleJp: "あしたデパートに行きます。",
+                exampleReading: "あした でぱーと に いきます (ashita depa-to ni ikimasu)",
+                exampleTh: "พรุ่งนี้จะไปห้างสรรพสินค้าครับ",
+                speechText: "いく。あしたでぱーとにいきます。"
+            },
+            {
+                kanji: "友だち",
+                reading: "ともだち",
+                readingRomaji: "tomodachi",
+                meaning: "เพื่อน",
+                exampleJp: "友だちと遊びに行きます。",
+                exampleReading: "ともだち と あそび に いきます (tomodachi to asobi ni ikimasu)",
+                exampleTh: "ไปเที่ยวเล่นกับเพื่อนครับ",
+                speechText: "ともだち。ともだちとあそびにいきます。"
+            },
+            {
+                kanji: "大きい",
+                reading: "おおきい",
+                readingRomaji: "ookii",
+                meaning: "ใหญ่",
+                exampleJp: "これはとても大きい家ですね。",
+                exampleReading: "これ は とても おおきい いえ ですね (kore wa totemo ookii ie desu ne)",
+                exampleTh: "นี่เป็นบ้านที่ใหญ่มากเลยนะครับ",
+                speechText: "おおきい。これはとてもおおきいいえですね。"
+            },
+            {
+                kanji: "買う",
+                reading: "かう",
+                readingRomaji: "kau",
+                meaning: "ซื้อ",
+                exampleJp: "スーパーでリンゴを買います。",
+                exampleReading: "すーぱー で りんご を かいます (su-pa- de ringo wo kaimasu)",
+                exampleTh: "ซื้อแอปเปิ้ลที่ซูเปอร์มาร์เก็ตครับ",
+                speechText: "かう。すーぱーでりんごをかいます。"
             }
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
+        ];
 
-            if (type === 'success') {
-                // Success scale tone
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
-                osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); // G5
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.4);
-            } else if (type === 'error') {
-                // Warning tone
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(150, ctx.currentTime); 
-                gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.3);
+        // --- 2. ฟังก์ชันระบบและการนำทางหน้าจอ ---
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if (pageName === 'list') {
+                document.getElementById('page-list').classList.add('active');
+                document.getElementById('nav-list').classList.add('active');
+            } else if (pageName === 'quiz') {
+                document.getElementById('page-quiz').classList.add('active');
+                document.getElementById('nav-quiz').classList.add('active');
+            } else if (pageName === 'history') {
+                document.getElementById('page-history').classList.add('active');
+                document.getElementById('nav-history').classList.add('active');
+                renderHistoryPage(); // อัปเดตข้อมูลประวัติแบบเรียลไทม์
             }
-        } catch (e) {
-            console.log("Audio synthesis blocked or not supported on this platform:", e);
-        }
-    }
-
-    // Single-Page Routing helper
-    function showScreen(screenId) {
-        document.getElementById('screen-home').classList.add('hidden');
-        document.getElementById('screen-lessons').classList.add('hidden');
-        document.getElementById('screen-game').classList.add('hidden');
-        document.getElementById('screen-result').classList.add('hidden');
-
-        document.getElementById(screenId).classList.remove('hidden');
-
-        if (screenId === 'screen-game') {
-            document.getElementById('live-timer-container').classList.remove('hidden');
-        } else {
-            document.getElementById('live-timer-container').classList.add('hidden');
-        }
-    }
-
-    // Advanced shuffler function
-    function shuffleArray(array) {
-        const copy = [...array];
-        for (let i = copy.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [copy[i], copy[j]] = [copy[j], copy[i]];
-        }
-        return copy;
-    }
-
-    // Handles user registration
-    function submitRegistration() {
-        const idInput = document.getElementById('player-id').value.trim();
-        const nameInput = document.getElementById('player-name').value.trim();
-        const errorDiv = document.getElementById('registration-error');
-
-        if (!idInput || !nameInput) {
-            errorDiv.classList.remove('hidden');
-            playAudioTone('error');
-            return;
         }
 
-        errorDiv.classList.add('hidden');
-        playerID = idInput;
-        playerName = nameInput;
+        // แจ้งเตือน Toast สไตล์สวยงามกะทัดรัด
+        function showToast(message, type = "warning") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = '<i class="fa-solid fa-circle-exclamation toast-icon"></i>';
+            if (type === 'success') icon = '<i class="fa-solid fa-circle-check toast-icon"></i>';
+            
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 50);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
-        document.getElementById('hud-player-name').innerText = playerName;
+        // สังเคราะห์เสียงพูดภาษาญี่ปุ่น (เฉพาะหน้ารายการคำศัพท์หลักเท่านั้น ไม่มีเสียงในตัวควิซ)
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ja-JP';
+                utterance.rate = 0.8; 
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("ขออภัย อุปกรณ์ไม่รองรับระบบสังเคราะห์เสียงอ่านภาษาญี่ปุ่น", "warning");
+            }
+        }
 
-        populateLessonsScreen();
-        showScreen('screen-lessons');
-    }
+        // เตรียมตัวใบ้จำนวนคันจิที่มีในระบบ และจัดเก็บตัวเลขช่วง
+        function initSetupRanges() {
+            const totalCount = kanjiData.length;
+            document.getElementById('total-kanji-hint').innerText = totalCount;
+            
+            // ทำให้เป็นกล่องข้อความว่างเปล่าตามที่คุณขอ
+            document.getElementById('quiz-start-range').value = "";
+            document.getElementById('quiz-end-range').value = "";
+        }
 
-    // Populates dynamically styled Lesson Units Card List
-    function populateLessonsScreen() {
-        const container = document.getElementById('lessons-list-container');
-        container.innerHTML = "";
+        // ตรวจเช็กความถูกต้องของการระบุช่วง Range ในแบบทดสอบ
+        function validateRanges() {
+            const startInput = document.getElementById('quiz-start-range').value;
+            const endInput = document.getElementById('quiz-end-range').value;
 
-        Object.keys(kanjiDatabase).forEach(lessonId => {
-            const lesson = kanjiDatabase[lessonId];
-            const count = lesson.data.length;
+            if (startInput === "" || endInput === "") {
+                return false; 
+            }
 
-            const card = document.createElement('button');
-            card.className = "w-full text-left bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl p-4 flex items-center justify-between transition-all active:scale-[0.99] animate-pop-in";
-            card.onclick = () => startGameWithLesson(parseInt(lessonId));
+            const startVal = parseInt(startInput);
+            const endVal = parseInt(endInput);
+            const totalCount = kanjiData.length;
 
-            card.innerHTML = `
-                <div class="flex items-center gap-3.5">
-                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                        <i class="fa-solid ${lesson.icon}"></i>
+            if (startVal < 1 || startVal > totalCount) {
+                return false;
+            }
+            if (endVal < 1 || endVal > totalCount) {
+                return false;
+            }
+            if (startVal > endVal) {
+                return false;
+            }
+            return true;
+        }
+
+        function exitToSetup() {
+            document.getElementById('quiz-setup').style.display = 'block';
+            document.getElementById('quiz-play').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'none';
+        }
+
+        // แสดงรายการคันจิหน้าหลัก
+        function renderKanjiList() {
+            const container = document.getElementById('kanji-list-container');
+            container.innerHTML = '';
+
+            kanjiData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'kanji-card';
+                card.innerHTML = `
+                    <div class="kanji-card-index">คันจิตัวที่ ${index + 1}</div>
+                    <div class="kanji-card-header">
+                        <div class="kanji-main">${item.kanji}</div>
+                        <div class="kanji-info">
+                            <div class="kanji-reading">${item.reading} (${item.readingRomaji})</div>
+                            <span class="kanji-meaning">${item.meaning}</span>
+                        </div>
+                        <button class="audio-btn" onclick="speak('${item.speechText}')">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-white text-sm">${lesson.title}</h4>
-                        <p class="text-ms text-slate-400 mt-0.5">${count} ຄຳສັບຄັນຈິ / ${count * 2} ຄຳຖາມ</p>
+                    <div class="example-box">
+                        <div class="ex-jp">${item.exampleJp}</div>
+                        <div class="ex-reading">
+                            <i class="fa-regular fa-comment-dots"></i>
+                            <span>${item.exampleReading}</span>
+                        </div>
+                        <div class="ex-th">ความหมาย: ${item.exampleTh}</div>
                     </div>
-                </div>
-                <div class="text-indigo-400 text-sm">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    // Initialize gameplay parameters
-    function startGameWithLesson(lessonId) {
-        selectedLessonId = lessonId;
-        const lesson = kanjiDatabase[lessonId];
-        
-        // 1. Shuffle original kanji pools first
-        const shuffledKanjiPool = shuffleArray(lesson.data);
-
-        // 2. Build exactly 2 consecutive questions for each kanji in order:
-        //    First reading check -> Immediately after, meaning check of that exact same kanji. Don't mix!
-        quizQuestions = [];
-        incorrectKanjiList = [];
-
-        shuffledKanjiPool.forEach((item) => {
-            // Step A: Reading Check
-            quizQuestions.push({
-                kanjiItem: item,
-                type: 'reading',
-                questionText: item.kanji,
-                choices: shuffleArray(item.rChoices),
-                correctAnswer: item.reading,
-                subtext: "What is the correct Hiragana reading? (ເລືອກສຽງອ່ານຟູລິກະນະທີ່ຖືກຕ້ອງ)"
+                `;
+                container.appendChild(card);
             });
-
-            // Step B: Meaning Check
-            quizQuestions.push({
-                kanjiItem: item,
-                type: 'meaning',
-                questionText: `${item.kanji} (${item.reading})`,
-                choices: shuffleArray(item.mChoices),
-                correctAnswer: item.lao,
-                subtext: "What is the correct Lao meaning? (ເລືອກຄວາມໝາຍພາສາລາວທີ່ຖືກຕ້ອງ)"
-            });
-        });
-
-        currentQuestionIndex = 0;
-        score = 0;
-        timeElapsed = 0;
-        hasAttemptedCurrent = false;
-
-        document.getElementById('hud-score').innerText = score;
-
-        // Reset and start clock
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            timeElapsed++;
-            const mins = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
-            const secs = (timeElapsed % 60).toString().padStart(2, '0');
-            document.getElementById('live-timer').innerText = `${mins}:${secs}`;
-        }, 1000);
-
-        loadQuestionLayout();
-        showScreen('screen-game');
-    }
-
-    // Render current active quiz cards
-    function loadQuestionLayout() {
-        if (currentQuestionIndex >= quizQuestions.length) {
-            completeGameQuiz();
-            return;
         }
 
-        hasAttemptedCurrent = false;
-        const currentQ = quizQuestions[currentQuestionIndex];
-
-        // Hide next navigation key
-        const nextBtn = document.getElementById('btn-next');
-        nextBtn.classList.add('hidden');
-        nextBtn.setAttribute('disabled', 'true');
-
-        // Manage progress tracking HUD
-        const progressCount = currentQuestionIndex + 1;
-        const totalCount = quizQuestions.length;
-        document.getElementById('progress-indicator').innerText = `Question ${progressCount} / ${totalCount}`;
+        // --- 3. ระบบควบคุม Quiz การตรวจจับสถิติ และประวัติสะสม ---
+        let quizPool = [];
+        let currentQuestionIndex = 0;
+        let quizState = "READING_INPUT"; // READING_INPUT, READING_CORRECTED, MEANING_CHOICE, GO_NEXT, GO_SUMMARY
         
-        const progressPct = (progressCount / totalCount) * 100;
-        document.getElementById('progress-bar-fill').style.width = `${progressPct}%`;
+        let currentReadingWrongCount = 0;
+        let currentMeaningWrongCount = 0;
+        let totalAttemptsForCurrent = 0;
 
-        // Style header type badge based on check mode
-        const badge = document.getElementById('question-type-badge');
-        badge.innerText = currentQ.type === 'reading' ? "1. Reading Check (ອ່ານ)" : "2. Meaning Check (ຄວາມໝາຍ)";
-        if (currentQ.type === 'reading') {
-            badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-2 inline-block bg-indigo-500/10 text-indigo-400 border border-indigo-500/20";
-        } else {
-            badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-2 inline-block bg-teal-500/10 text-teal-400 border border-teal-500/20";
-        }
+        let firstTimeReadingCorrectCount = 0;
+        let firstTimeMeaningCorrectCount = 0;
+        
+        let quizReportData = [];
+        let quizUserName = "";
+        let quizStartTime = null;
 
-        // Configure target font size and custom underline decorations for meaning checks
-        const targetDisplay = document.getElementById('target-display');
-        targetDisplay.innerText = currentQ.questionText;
+        function startQuiz() {
+            const startInput = document.getElementById('quiz-start-range').value;
+            const endInput = document.getElementById('quiz-end-range').value;
+            const totalCount = kanjiData.length;
 
-        if (currentQ.type === 'meaning') {
-            // Apply a beautiful thick underline to help distinguish the meaning check and decrease size slightly to fit nicely on one line
-            targetDisplay.className = "text-2xl sm:text-3xl font-black text-white tracking-wide transition-all duration-100 font-japanese underline decoration-indigo-400 decoration-2 underline-offset-4";
-        } else {
-            // Clean un-underlined look with standard medium size
-            targetDisplay.className = "text-3xl sm:text-4xl font-black text-white tracking-wide transition-all duration-100 font-japanese";
-        }
-
-        document.getElementById('target-subtext').innerText = currentQ.subtext;
-
-        // Populate Choice Buttons
-        const optContainer = document.getElementById('options-container');
-        optContainer.innerHTML = "";
-
-        currentQ.choices.forEach((choice, index) => {
-            const btn = document.createElement('button');
-            btn.className = "w-full text-left bg-slate-800/80 border border-slate-700/60 hover:border-slate-500 hover:bg-slate-800 rounded-xl p-3 flex items-center justify-between text-white font-medium active:scale-[0.99] transition-all duration-200 animate-pop-in";
-            btn.onclick = () => selectOption(choice, btn);
-
-            btn.innerHTML = `
-                <span class="flex items-center gap-2.5">
-                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-slate-700/60 text-slate-300 text-[10px] font-bold">${index + 1}</span>
-                    <span class="text-ms font-semibold tracking-wide">${choice}</span>
-                </span>
-                <i class="fa-regular fa-circle text-slate-500 text-ms"></i>
-            `;
-            optContainer.appendChild(btn);
-        });
-    }
-
-    // Handle button selection clicks
-    function selectOption(choice, buttonElement) {
-        const currentQ = quizQuestions[currentQuestionIndex];
-        const isCorrect = (choice === currentQ.correctAnswer);
-
-        buttonElement.classList.remove('animate-shake');
-
-        if (isCorrect) {
-            playAudioTone('success');
-
-            buttonElement.className = "w-full text-left bg-emerald-950/40 border-2 border-emerald-500 rounded-xl p-3 flex items-center justify-between text-emerald-300 font-bold transition-all duration-200";
-            buttonElement.innerHTML = `
-                <span class="flex items-center gap-2.5">
-                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-slate-900 text-[10px] font-black"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-ms tracking-wide">${choice}</span>
-                </span>
-                <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-            `;
-
-            // Score evaluation
-            if (!hasAttemptedCurrent) {
-                score++;
-                document.getElementById('hud-score').innerText = score;
+            if (startInput === "" || endInput === "") {
+                showToast(`กรุณากรอกตัวเลขคันจิตัวเริ่มต้นและตัวสุดท้าย (1 - ${totalCount})`, "warning");
+                return;
             }
 
-            disableAllOptionButtons();
+            const startVal = parseInt(startInput);
+            const endVal = parseInt(endInput);
 
-            const nextBtn = document.getElementById('btn-next');
-            nextBtn.classList.remove('hidden');
-            nextBtn.removeAttribute('disabled');
+            if (startVal < 1 || startVal > totalCount || endVal < 1 || endVal > totalCount) {
+                showToast(`กรุณากรอกตัวเลขให้อยู่ในช่วง 1 ถึง ${totalCount} เท่านั้นครับ`, "warning");
+                return;
+            }
 
-        } else {
-            playAudioTone('error');
+            if (startVal > endVal) {
+                showToast("ข้อคันจิตัวสุดท้ายต้องมากกว่าหรือเท่ากับข้อคันจิตัวเริ่มต้นครับ", "warning");
+                return;
+            }
 
-            buttonElement.classList.add('animate-shake');
-            buttonElement.className = "w-full text-left bg-rose-950/40 border-2 border-rose-500/80 rounded-xl p-3 flex items-center justify-between text-rose-300 font-bold transition-all duration-200";
-            buttonElement.innerHTML = `
-                <span class="flex items-center gap-2.5">
-                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-rose-500 text-slate-900 text-[10px] font-black"><i class="fa-solid fa-xmark"></i></span>
-                    <span class="text-ms line-through tracking-wide">${choice}</span>
-                </span>
-                <i class="fa-solid fa-circle-xmark text-rose-400 text-sm"></i>
-            `;
+            const inputName = document.getElementById('quiz-username-input').value.trim();
+            quizUserName = inputName ? inputName : "ผู้เรียนทั่วไป";
 
-            buttonElement.onclick = null;
+            // เลือกช่วงข้อตามคันจิที่มีในระบบ
+            const slicedKanji = kanjiData.slice(startVal - 1, endVal);
+            
+            // สุ่มลำดับข้อสำหรับการทำควิซอย่างมีมิติ
+            quizPool = [...slicedKanji].sort(() => 0.5 - Math.random());
+            
+            currentQuestionIndex = 0;
+            firstTimeReadingCorrectCount = 0;
+            firstTimeMeaningCorrectCount = 0;
+            quizReportData = [];
 
-            // Track failed attempts to review later
-            if (!hasAttemptedCurrent) {
-                hasAttemptedCurrent = true;
-                const exists = incorrectKanjiList.find(i => i.kanji === currentQ.kanjiItem.kanji);
-                if (!exists) {
-                    incorrectKanjiList.push(currentQ.kanjiItem);
+            // จับเวลาเริ่มต้น
+            quizStartTime = Date.now();
+
+            document.getElementById('quiz-setup').style.display = 'none';
+            document.getElementById('quiz-play').style.display = 'block';
+            document.getElementById('quiz-result').style.display = 'none';
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            quizState = "READING_INPUT";
+            currentReadingWrongCount = 0;
+            currentMeaningWrongCount = 0;
+            totalAttemptsForCurrent = 0;
+
+            const currentKanjiObj = quizPool[currentQuestionIndex];
+
+            // ปรับแต่ง UI และคำนำข้อคำถาม
+            document.getElementById('quiz-progress-text').innerText = `คำถามที่ ${currentQuestionIndex + 1}/${quizPool.length}`;
+            document.getElementById('current-kanji').innerText = currentKanjiObj.kanji;
+            
+            const instructionEl = document.getElementById('quiz-instruction');
+            instructionEl.innerText = "พิมพ์เสียงอ่านของคันจิ (ฮิรางานะ หรือ โรมาจิ)";
+            instructionEl.style.display = "block";
+            
+            const inputEl = document.getElementById('quiz-input');
+            inputEl.value = "";
+            inputEl.disabled = false;
+            inputEl.style.display = "block";
+            inputEl.placeholder = "พิมพ์คำตอบที่นี่..."; // เว้นว่างเฉยๆ ป้องกันการโกง
+            inputEl.focus();
+
+            // ล้างหน้าจอและสถานะความถูกต้องสะสม
+            document.getElementById('quiz-choices-container').style.display = "none";
+            document.getElementById('quiz-success-state').style.display = "none";
+            document.getElementById('maru-overlay').classList.remove('show');
+            document.getElementById('hint-box').style.display = 'none';
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            feedbackBox.className = 'feedback-box';
+            feedbackBox.style.display = 'none';
+
+            // ซ่อนปุ่มด้านล่างไว้ เพื่อบังคับให้ตรวจเช็กก่อนเสมอ
+            const actionBtn = document.getElementById('quiz-action-btn');
+            actionBtn.style.display = 'flex';
+            actionBtn.innerHTML = "<i class='fa-solid fa-magnifying-glass'></i> ตรวจคำตอบ";
+        }
+
+        // ดึงช้อยส์ความหมาย 3 ตัวเลือก
+        function generateChoices(currentKanjiObj) {
+            const correctMeaning = currentKanjiObj.meaning;
+            
+            const otherMeanings = kanjiData
+                .filter(item => item.meaning !== correctMeaning)
+                .map(item => item.meaning);
+            
+            const distractors = [...otherMeanings].sort(() => 0.5 - Math.random()).slice(0, 2);
+            const finalChoices = [correctMeaning, ...distractors].sort(() => 0.5 - Math.random());
+            return finalChoices;
+        }
+
+        function handleQuizAction() {
+            const currentKanjiObj = quizPool[currentQuestionIndex];
+            const inputEl = document.getElementById('quiz-input');
+            const userAnswer = inputEl.value.trim().toLowerCase();
+            const feedbackBox = document.getElementById('feedback-box');
+            const hintBox = document.getElementById('hint-box');
+            const actionBtn = document.getElementById('quiz-action-btn');
+
+            if (!userAnswer && quizState === "READING_INPUT") {
+                showToast("กรุณาพิมพ์ป้อนเสียงอ่านเพื่อทำการตรวจคำตอบ", "warning");
+                return;
+            }
+
+            // --- ส่วนที่ 1: ตรวจเช็กสะกดเสียงอ่าน ---
+            if (quizState === "READING_INPUT") {
+                totalAttemptsForCurrent++;
+                const isCorrect = (userAnswer === currentKanjiObj.reading || userAnswer === currentKanjiObj.readingRomaji);
+
+                if (isCorrect) {
+                    if (currentReadingWrongCount === 0) {
+                        firstTimeReadingCorrectCount++;
+                    }
+                    
+                    // ปรากฏอนิเมชัน Maru วงกลมสีเขียว
+                    document.getElementById('maru-overlay').classList.add('show');
+                    
+                    // ปรับโครงสร้างกล่องข้อความ (Morphing State) ปิดช่องอินพุตเดิม แล้วเปิดการ์ดแสดงคำเฉลยความถูกต้องสวยงามแทน
+                    inputEl.style.display = "none";
+                    document.getElementById('quiz-instruction').style.display = "none";
+                    hintBox.style.display = 'none';
+
+                    document.getElementById('success-kana').innerText = currentKanjiObj.reading;
+                    document.getElementById('success-romaji').innerText = `(${currentKanjiObj.readingRomaji})`;
+                    
+                    document.getElementById('quiz-success-state').style.display = "flex";
+                    feedbackBox.style.display = 'none';
+
+                    // สับเปลี่ยนฟังก์ชันนำทางไปยังขั้นตอนถัดไป
+                    quizState = "READING_CORRECTED";
+                    actionBtn.innerHTML = "ไปยังขั้นตอนเลือกความหมาย <i class='fa-solid fa-arrow-right'></i>";
+                } else {
+                    currentReadingWrongCount++;
+                    
+                    // ปรากฏแอนิเมชันสั่นเมื่อพิมพ์ผิด
+                    inputEl.classList.remove('shake');
+                    void inputEl.offsetWidth; // บังคับรีเฟรช DOM เพื่อให้แอนิเมชันทำงานซ้ำได้
+                    inputEl.classList.add('shake');
+
+                    feedbackBox.className = "feedback-box wrong";
+                    feedbackBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> เสียงสะกดไม่ถูกต้อง โปรดลองทบทวนอีกครั้งครับ`;
+                    feedbackBox.style.display = 'block';
+                    
+                    // ใบ้ตัวอักษรโรมาจิทีละตำแหน่ง
+                    const targetRomaji = currentKanjiObj.readingRomaji;
+                    let currentHint = targetRomaji.substring(0, currentReadingWrongCount);
+                    
+                    hintBox.style.display = 'block';
+                    hintBox.innerHTML = `<strong><i class="fa-regular fa-lightbulb"></i> คำใบ้:</strong> ตัวสะกดนำหน้า: <span style="font-size:1.15rem; color:var(--danger); font-weight:bold; font-family:'Noto Sans JP', sans-serif;">${currentHint}...</span>`;
                 }
             }
-        }
-    }
+            // --- ส่วนที่ 2: พาร์ทคำถามแบบช้อยส์เลือกความหมายคันจิ ---
+            else if (quizState === "READING_CORRECTED") {
+                quizState = "MEANING_CHOICE";
+                
+                document.getElementById('quiz-instruction').innerText = `ความหมายของคันจิ "${currentKanjiObj.kanji}" ตรงกับข้อใด?`;
+                document.getElementById('quiz-instruction').style.display = "block";
+                
+                // ล้างซ่อนวงกลม Maru และการ์ดเฉลยความถูกต้อง
+                document.getElementById('maru-overlay').classList.remove('show');
+                document.getElementById('quiz-success-state').style.display = "none";
+                feedbackBox.style.display = 'none';
 
-    function disableAllOptionButtons() {
-        const optContainer = document.getElementById('options-container');
-        const buttons = optContainer.getElementsByTagName('button');
-        for (let btn of buttons) {
-            btn.onclick = null;
-            if (!btn.classList.contains('border-emerald-500')) {
-                btn.style.opacity = "0.4";
+                // ซ่อนปุ่มด้านล่างไว้ เพื่อบังคับให้ผู้เรียนต้องเลือกกดช้อยส์ 3 ข้อก่อน
+                actionBtn.style.display = 'none';
+
+                // บรรจุช้อยส์ 3 ตัวเลือก
+                const choicesContainer = document.getElementById('quiz-choices-container');
+                choicesContainer.style.display = "flex";
+                choicesContainer.innerHTML = "";
+
+                const choices = generateChoices(currentKanjiObj);
+                choices.forEach((choice, index) => {
+                    const badgeLetter = ["ก", "ข", "ค"][index];
+                    const choiceButton = document.createElement("button");
+                    choiceButton.className = "choice-btn";
+                    choiceButton.innerHTML = `<span class="badge">${badgeLetter}</span><span style="flex:1;">${choice}</span>`;
+                    choiceButton.onclick = function() {
+                        selectMeaningChoice(choiceButton, choice, currentKanjiObj);
+                    };
+                    choicesContainer.appendChild(choiceButton);
+                });
+            }
+            // --- ส่วนที่ 3: สับเปลี่ยนข้อถัดไปหรือรายงานสรุปผล ---
+            else if (quizState === "GO_NEXT") {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else if (quizState === "GO_SUMMARY") {
+                showQuizSummary();
             }
         }
-    }
 
-    function advanceNextQuestion() {
-        currentQuestionIndex++;
-        loadQuestionLayout();
-    }
+        // จัดการคลิกช้อยส์คำแปลภาษาไทย
+        function selectMeaningChoice(selectedBtn, chosenValue, currentKanjiObj) {
+            const feedbackBox = document.getElementById('feedback-box');
+            const actionBtn = document.getElementById('quiz-action-btn');
+            const allChoiceButtons = document.querySelectorAll('.choice-btn');
 
-    // Complete Game loop and render report cards
-    function completeGameQuiz() {
-        if (timerInterval) clearInterval(timerInterval);
+            totalAttemptsForCurrent++;
 
-        // Date computations
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const date = String(now.getDate()).padStart(2, '0');
-        const hour = String(now.getHours()).padStart(2, '0');
-        const min = String(now.getMinutes()).padStart(2, '0');
-        const fullTimestamp = `${year}-${month}-${date} ${hour}:${min}`;
+            if (chosenValue === currentKanjiObj.meaning) {
+                // ตอบถูก
+                selectedBtn.classList.add('correct');
+                allChoiceButtons.forEach(btn => btn.disabled = true); // ล็อกคำตอบปุ่มอื่น
 
-        // Prepare timer metrics
-        const mins = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
-        const secs = (timeElapsed % 60).toString().padStart(2, '0');
-        const formattedTimeUsed = `${mins}:${secs}`;
+                if (currentMeaningWrongCount === 0) {
+                    firstTimeMeaningCorrectCount++;
+                }
 
-        // Compute accuracy score percentages
-        const totalQs = quizQuestions.length;
-        const accuracyPct = Math.round((score / totalQs) * 100);
+                feedbackBox.className = "feedback-box correct";
+                feedbackBox.innerHTML = `<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i> ถูกต้อง! คำแปลคือ: <strong>${currentKanjiObj.meaning}</strong>`;
+                feedbackBox.style.display = 'block';
 
-        document.getElementById('result-score-percent').innerText = `${accuracyPct}%`;
-        document.getElementById('result-score-fraction').innerText = `Score: ${score} / ${totalQs} Correct Answers`;
-        document.getElementById('result-player-id').innerText = playerID;
-        document.getElementById('result-player-name').innerText = playerName;
-        document.getElementById('result-timestamp').innerText = fullTimestamp;
-        document.getElementById('result-time-used').innerText = formattedTimeUsed;
-        
-        const currentLesson = kanjiDatabase[selectedLessonId];
-        document.getElementById('result-lesson-unit').innerText = currentLesson ? currentLesson.title : `Lesson ${selectedLessonId}`;
+                // บันทึกสถิติรายข้อยัดลง Array ประเมินผล
+                quizReportData.push({
+                    kanji: currentKanjiObj.kanji,
+                    readingWrong: currentReadingWrongCount,
+                    meaningWrong: currentMeaningWrongCount,
+                    totalAttempts: totalAttemptsForCurrent
+                });
 
-        // Render incorrect reviewing list table
-        const reviewBox = document.getElementById('incorrect-review-box');
-        const reviewTableBody = document.getElementById('incorrect-review-list');
-        reviewTableBody.innerHTML = "";
+                // ตรวจเช็กว่านี่เป็นข้อสอบข้อสุดท้ายหรือไม่
+                const isLastQuestion = (currentQuestionIndex === quizPool.length - 1);
+                
+                if (!isLastQuestion) {
+                    quizState = "GO_NEXT";
+                    actionBtn.innerHTML = "ไปยังข้อถัดไป <i class='fa-solid fa-arrow-right'></i>";
+                    actionBtn.style.display = 'flex'; // แสดงกึ่งกลางอย่างลงตัว
+                } else {
+                    // ปุ่มเฉลยประเมินผลจะแสดงขึ้นในข้อสุดท้ายหลังจากควิซถูกต้องแล้วเท่านั้น!
+                    quizState = "GO_SUMMARY";
+                    actionBtn.innerHTML = "ดูรายงานผลสัมฤทธิ์ <i class='fa-solid fa-chart-simple'></i>";
+                    actionBtn.style.display = 'flex'; 
+                }
+            } else {
+                // ตอบผิด
+                selectedBtn.classList.add('wrong');
+                selectedBtn.disabled = true; // ล็อกปุ่มป้องกันกดย้ำซ้ำ
+                currentMeaningWrongCount++;
 
-        if (incorrectKanjiList.length > 0) {
-            reviewBox.classList.remove('hidden');
-            incorrectKanjiList.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-700/30 hover:bg-slate-800/20";
-                tr.innerHTML = `
-                    <td class="p-2 font-bold text-white text-ms font-japanese">${item.kanji}</td>
-                    <td class="p-2 text-indigo-300 font-mono text-ms">${item.reading}</td>
-                    <td class="p-2 text-slate-300 text-ms">${item.lao}</td>
-                `;
-                reviewTableBody.appendChild(tr);
+                feedbackBox.className = "feedback-box wrong";
+                feedbackBox.innerHTML = `<i class="fa-solid fa-face-frown" style="margin-right:6px;"></i> คำแปลยังไม่ใช่ตัวเลือกนี้ครับ โปรดลองพิจารณาเลือกข้ออื่นดูใหม่`;
+                feedbackBox.style.display = 'block';
+            }
+        }
+
+        // รายงานคะแนนและบันทึกสถิติประวัติสะสม
+        function showQuizSummary() {
+            document.getElementById('quiz-play').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+
+            // คำนวณเปอร์เซ็นต์ความแม่นยำ (Perfect 1st try) ของสองพาร์ทแยกเป็นอิสระ
+            const readingPercent = Math.round((firstTimeReadingCorrectCount / quizPool.length) * 100);
+            const meaningPercent = Math.round((firstTimeMeaningCorrectCount / quizPool.length) * 100);
+            
+            document.getElementById('result-percent-reading').innerText = `${readingPercent}%`;
+            document.getElementById('result-percent-meaning').innerText = `${meaningPercent}%`;
+
+            // ดึงข้อมูลช่วงข้อและรายละเอียดการบันทึกเวลา
+            const startRange = document.getElementById('quiz-start-range').value;
+            const endRange = document.getElementById('quiz-end-range').value;
+            const totalTested = quizPool.length;
+
+            const quizEndTime = Date.now();
+            const timeDifferenceMs = quizEndTime - quizStartTime;
+            const totalSeconds = Math.floor(timeDifferenceMs / 1000);
+            const minutesUsed = Math.floor(totalSeconds / 60);
+            const secondsUsed = totalSeconds % 60;
+            const formattedDuration = `${minutesUsed} นาที ${secondsUsed} วินาที`;
+
+            const now = new Date();
+            const thaiOptions = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const formattedDateTime = now.toLocaleDateString('th-TH', thaiOptions) + ' น.';
+
+            // คำนวณความถี่จำแนกการถูกในครั้งที่ 1 - 5+
+            let rStats = { 1: 0, 2: 0, 3: 0, 4: 0, "5+": 0 };
+            let mStats = { 1: 0, 2: 0, 3: 0, 4: 0, "5+": 0 };
+
+            quizReportData.forEach(item => {
+                const rAttempts = item.readingWrong + 1;
+                if (rAttempts === 1) rStats[1]++;
+                else if (rAttempts === 2) rStats[2]++;
+                else if (rAttempts === 3) rStats[3]++;
+                else if (rAttempts === 4) rStats[4]++;
+                else rStats["5+"]++;
+
+                const mAttempts = item.meaningWrong + 1;
+                if (mAttempts === 1) mStats[1]++;
+                else if (mAttempts === 2) mStats[2]++;
+                else if (mAttempts === 3) mStats[3]++;
+                else if (mAttempts === 4) mStats[4]++;
+                else mStats["5+"]++;
             });
-        } else {
-            reviewBox.classList.add('hidden');
+
+            // สร้างตารางสถิติเปรียบเทียบในแถบเดียวกันตามเงื่อนไขใหม่ที่แสนกระชับ
+            let summaryHtml = `
+                <!-- การ์ดสรุปประวัติผู้เข้าเรียน -->
+                <div class="candidate-card">
+                    <div class="candidate-header-title">
+                        <i class="fa-solid fa-address-card"></i> ข้อมูลผู้เข้าทดสอบและสถิติเวลา
+                    </div>
+                    <div class="candidate-row">
+                        <div class="candidate-label">ชื่อผู้เรียน:</div>
+                        <div class="candidate-value">${quizUserName}</div>
+                    </div>
+                    <div class="candidate-row">
+                        <div class="candidate-label">วันที่-เวลาเสร็จสิ้น:</div>
+                        <div class="candidate-value" style="font-size: 0.82rem; color: var(--primary-dark);">${formattedDateTime}</div>
+                    </div>
+                    <div class="candidate-row">
+                        <div class="candidate-label">เวลาทั้งหมดที่ใช้:</div>
+                        <div class="candidate-value" style="color: var(--accent);">${formattedDuration}</div>
+                    </div>
+                    <div class="candidate-row">
+                        <div class="candidate-label">ช่วงคันจิที่ทดสอบ:</div>
+                        <div class="candidate-value">ตัวที่ ${startRange} ถึงตัวที่ ${endRange} (รวม ${totalTested} ตัว)</div>
+                    </div>
+                </div>
+
+                <!-- ตารางเปรียบเทียบในแถบเดียวกันโดยไม่ต้องยืดหลายแถว -->
+                <table class="stat-comp-table">
+                    <thead>
+                        <tr>
+                            <th>ระดับการตอบ</th>
+                            <th>เสียงอ่าน (ตัว)</th>
+                            <th>ความหมาย (ตัว)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="label-col" style="color: var(--success); font-weight: 700;">ถูกในครั้งแรก</td>
+                            <td style="font-weight: 700; color: var(--success);">${rStats[1]}</td>
+                            <td style="font-weight: 700; color: var(--success);">${mStats[1]}</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">ถูกในครั้งที่ 2</td>
+                            <td>${rStats[2]}</td>
+                            <td>${mStats[2]}</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">ถูกในครั้งที่ 3</td>
+                            <td>${rStats[3]}</td>
+                            <td>${mStats[3]}</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">ถูกในครั้งที่ 4</td>
+                            <td>${rStats[4]}</td>
+                            <td>${mStats[4]}</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col" style="color: var(--danger);">ถูกในครั้งที่ 5+</td>
+                            <td style="font-weight: 600; color: var(--danger);">${rStats["5+"]}</td>
+                            <td style="font-weight: 600; color: var(--danger);">${mStats["5+"]}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('result-summary').innerHTML = summaryHtml;
+
+            // บรรจุตารางสรุปข้อรายตัว
+            const tableBody = document.getElementById('report-table-body');
+            tableBody.innerHTML = '';
+
+            quizReportData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="kanji-cell">${item.kanji}</td>
+                    <td style="color:${item.readingWrong > 0 ? 'var(--danger)' : 'var(--success)'}; font-weight:700;">${item.readingWrong} ครั้ง</td>
+                    <td style="color:${item.meaningWrong > 0 ? 'var(--danger)' : 'var(--success)'}; font-weight:700;">${item.meaningWrong} ครั้ง</td>
+                    <td><span style="background:var(--primary-light); color:var(--primary-dark); padding:3px 8px; border-radius:20px; font-weight:600;">${item.totalAttempts} ครั้ง</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // บันทึกประวัติสถิติสะสมลงเครื่องด้วย LocalStorage
+            const sessionLog = {
+                userName: quizUserName,
+                dateTime: formattedDateTime,
+                rawDate: now.toDateString(), // ใช้จัดกลุ่มรายวันได้
+                duration: formattedDuration,
+                rangeText: `ตัวที่ ${startRange} - ${endRange}`,
+                kanjisCount: totalTested,
+                readingAcc: readingPercent,
+                meaningAcc: meaningPercent
+            };
+            saveHistory(sessionLog);
         }
 
-        showScreen('screen-result');
-    }
-
-    function restartActiveLesson() {
-        if (selectedLessonId) {
-            startGameWithLesson(selectedLessonId);
+        // บันทึกและวิเคราะห์ประวัติสะสม
+        function saveHistory(sessionLog) {
+            let history = JSON.parse(localStorage.getItem('jft_kanji_history') || '[]');
+            history.unshift(sessionLog); // เพิ่มในลำดับบนสุด
+            localStorage.setItem('jft_kanji_history', JSON.stringify(history));
         }
-    }
 
-    // Modal warnings controls
-    function triggerCustomAlert(title, message) {
-        document.getElementById('alert-title').innerText = title;
-        document.getElementById('alert-message').innerText = message;
-        document.getElementById('custom-alert').classList.remove('hidden');
-        playAudioTone('error');
-    }
-
-    function dismissCustomAlert() {
-        document.getElementById('custom-alert').classList.add('hidden');
-    }
-</script>
-
-<script>
-    // 1. Prevent right-click operations globally
-    document.addEventListener('contextmenu', (event) => {
-        event.preventDefault();
-        triggerCustomAlert("ປິດການໃຊ້ງານ / Restricted Action", "This app restricts right-clicking to prevent looking up Kanji terms online.");
-    });
-
-    // 2. Prevent standard keyboard inspectors shortcuts
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'F12') {
-            event.preventDefault();
-            triggerCustomAlert("Security Alert", "Console examination tools are disabled during assessments.");
+        // ล้างข้อมูลและถามคำถามยืนยันสิทธิ์ความปลอดภัย
+        function confirmAndClearHistory() {
+            const isConfirmed = confirm("คุณแน่ใจหรือไม่ที่ต้องการจะลบ?");
+            if (isConfirmed) {
+                localStorage.removeItem('jft_kanji_history');
+                showToast("ล้างประวัติบันทึกข้อมูลเรียบร้อยแล้ว", "success");
+                renderHistoryPage(); // รีเฟรชหน้าตาประวัติทันที
+            }
         }
-        if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) {
-            event.preventDefault();
-            triggerCustomAlert("Security Alert", "Developer tools are blocked.");
-        }
-        if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
-            event.preventDefault();
-            triggerCustomAlert("Security Alert", "View source code access is blocked.");
-        }
-    });
 
-    // 3. Prevent text copy/cut modifications
-    document.addEventListener('copy', (event) => {
-        event.preventDefault();
-        triggerCustomAlert("ປິດການຄັດລອກ / Action Blocked", "Copying test content is restricted.");
-    });
-    document.addEventListener('cut', (event) => {
-        event.preventDefault();
-    });
-</script>
+        // จัดการหน้าตาแสดงผลข้อมูลประวัติ
+        function renderHistoryPage() {
+            const history = JSON.parse(localStorage.getItem('jft_kanji_history') || '[]');
+            const logsContainer = document.getElementById('history-logs-container');
+            
+            // 1. คำนวณสถิติภาพรวมเฉลี่ยสะสม
+            const practicesCount = history.length;
+            document.getElementById('total-practices-count').innerText = practicesCount;
 
+            if (practicesCount > 0) {
+                let sumReading = 0;
+                let sumMeaning = 0;
+                let totalKanjisSum = 0;
+
+                history.forEach(log => {
+                    sumReading += log.readingAcc;
+                    sumMeaning += log.meaningAcc;
+                    totalKanjisSum += log.kanjisCount;
+                });
+
+                const avgReading = Math.round(sumReading / practicesCount);
+                const avgMeaning = Math.round(sumMeaning / practicesCount);
+
+                document.getElementById('avg-reading-score').innerText = `${avgReading}%`;
+                document.getElementById('avg-meaning-score').innerText = `${avgMeaning}%`;
+                document.getElementById('total-kanjis-practiced').innerText = `${totalKanjisSum} ตัว`;
+            } else {
+                document.getElementById('avg-reading-score').innerText = '0%';
+                document.getElementById('avg-meaning-score').innerText = '0%';
+                document.getElementById('total-kanjis-practiced').innerText = '0 ตัว';
+            }
+
+            // 2. เติมรายการบันทึกรายรอบ
+            logsContainer.innerHTML = '';
+            if (practicesCount === 0) {
+                logsContainer.innerHTML = '<div class="no-data">ควิซยังว่างเปล่า เริ่มต้นทำแบบทดสอบเพื่อเก็บประวัติความก้าวหน้ารายวันได้เลยครับ</div>';
+                return;
+            }
+
+            history.forEach(log => {
+                const card = document.createElement('div');
+                card.className = 'history-log-card';
+                card.innerHTML = `
+                    <div class="date"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i>${log.dateTime}</div>
+                    <div class="user-info">ชื่อผู้เรียน: ${log.userName}</div>
+                    <div style="margin-bottom: 4px; font-weight: 500;">ช่วงข้อ: ${log.rangeText} (ทดสอบคำศัพท์ ${log.kanjisCount} ตัว)</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">เวลาที่ใช้ทั้งหมด: ${log.duration}</div>
+                    <div class="scores">
+                        <div style="flex: 1; text-align: center; border-right: 1px solid var(--border);">
+                            <span style="font-weight: 700; color: var(--primary);">${log.readingAcc}%</span><br>
+                            <span style="font-size: 0.65rem; color: var(--text-sub); font-weight: bold;">สะกดเสียงอ่าน</span>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <span style="font-weight: 700; color: var(--success);">${log.meaningAcc}%</span><br>
+                            <span style="font-size: 0.65rem; color: var(--text-sub); font-weight: bold;">เลือกความหมาย</span>
+                        </div>
+                    </div>
+                `;
+                logsContainer.appendChild(card);
+            });
+        }
+
+        function resetQuizView() {
+            document.getElementById('quiz-setup').style.display = 'block';
+            document.getElementById('quiz-play').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'none';
+            initSetupRanges(); // โหลดเตรียมความพร้อมของแผงเลือกช่วงใหม่
+        }
+
+        // เริ่มรันระบบต่างๆ เมื่อเอกสารดาวน์โหลดสมบูรณ์
+        window.onload = function() {
+            renderKanjiList();
+            initSetupRanges();
+            
+            // ดักระบบกดส่งคำตอบด้วยแป้นพิมพ์เสร็จสิ้น (ปุ่ม Enter)
+            document.getElementById('quiz-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    handleQuizAction();
+                }
+            });
+        };
+    </script>
 </body>
 </html>
-
