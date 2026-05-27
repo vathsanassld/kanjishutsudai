@@ -1212,105 +1212,605 @@
         // --- 1. ข้อมูลคันจิ JFT-Basic (A2) พร้อมคำอ่านสะกดประโยคตัวอย่างครบถ้วน ---
         const kanjiData = [
             {
-                kanji: "駅",
-                reading: "えき",
-                readingRomaji: "eki",
-                meaning: "สถานีรถไฟ",
-                exampleJp: "駅で友達に会います。",
-                exampleReading: "えき で ともだち に あいます (eki de tomodachi ni aimasu)",
-                exampleTh: "จะเจอเพื่อนที่สถานีรถไฟ",
-                speechText: "えき。えきでともだちにあいます。"
-            },
+    "kanji": "名前",
+    "reading": "なまえ",
+    "readingRomaji": "namae",
+    "meaning": "ชื่อ",
+    "exampleJp": "お名前は何ですか。",
+    "exampleReading": "おなまえ は なん です か (onamae wa nan desu ka)",
+    "exampleTh": "คุณชื่ออะไรครับ/ค่ะ",
+    "speechText": "なまえ。おなまえはなんですか。"
+  },
+  {
+    "kanji": "前",
+    "reading": "まえ",
+    "readingRomaji": "mae",
+    "meaning": "ข้างหน้า / ก่อน",
+    "exampleJp": "駅の前にビルがあります。",
+    "exampleReading": "えき の まえ に びる が あります (eki no mae ni biru ga arimasu)",
+    "exampleTh": "มีตึกอยู่ข้างหน้าสถานีรถไฟ",
+    "speechText": "まえ。えきのまえにびるがあります。"
+  },
+  {
+    "kanji": "国",
+    "reading": "くに",
+    "readingRomaji": "kuni",
+    "meaning": "ประเทศ",
+    "exampleJp": "あなたの国はどこですか。",
+    "exampleReading": "あなた の くに は どこ です か (anata no kuni wa doko desu ka)",
+    "exampleTh": "ประเทศของคุณอยู่ที่ไหน",
+    "speechText": "くに。あなたのくにはどこですか。"
+  },
+  {
+    "kanji": "私",
+    "reading": "わたし",
+    "readingRomaji": "watashi",
+    "meaning": "ฉัน / ผม",
+    "exampleJp": "私は学生です。",
+    "exampleReading": "わたし は がくせい です (watashi wa gakusei desu)",
+    "exampleTh": "ฉันเป็นนักเรียน",
+    "speechText": "わたし。わたしはがくせいです。"
+  },
+  {
+    "kanji": "父",
+    "reading": "ちち",
+    "readingRomaji": "chichi",
+    "meaning": "พ่อ (ของฉัน)",
+    "exampleJp": "私の父は会社員です。",
+    "exampleReading": "わたし の ちち は かいしゃいん です (watashi no chichi wa kaishain desu)",
+    "exampleTh": "พ่อของฉันเป็นพนักงานบริษัท",
+    "speechText": "ちち。わたしのちちはかいしゃいんです。"
+  },
+  {
+    "kanji": "母",
+    "reading": "はは",
+    "readingRomaji": "haha",
+    "meaning": "แม่ (ของฉัน)",
+    "exampleJp": "私の母は日本語の先生です。",
+    "exampleReading": "わたし の はは は にほんご の せんせい です (watashi no haha wa nihongo no sensei desu)",
+    "exampleTh": "แม่ของฉันเป็นครูสอนภาษาญี่ปุ่น",
+    "speechText": "はは。わたしのはははにほんごのせんせいです。"
+  },
+  {
+    "kanji": "子ども",
+    "reading": "こども",
+    "readingRomaji": "kodomo",
+    "meaning": "เด็ก / ลูก",
+    "exampleJp": "公園で子どもが遊んでいます。",
+    "exampleReading": "こうえん で こども が あそんでいます (kouen de kodomo ga asondeimasu)",
+    "exampleTh": "เด็กๆ กำลังเล่นกันอยู่ที่สวนสาธารณะ",
+    "speechText": "こども。こうえんでこどもがあそんでいます。"
+  },
+  {
+    "kanji": "日本",
+    "reading": "にほん",
+    "readingRomaji": "nihon",
+    "meaning": "ประเทศญี่ปุ่น",
+    "exampleJp": "来月日本へ行きます。",
+    "exampleReading": "らいげつ にほん へ いきます (raigetsu nihon he ikimasu)",
+    "exampleTh": "เดือนหน้าจะไปประเทศญี่ปุ่น",
+    "speechText": "にほん。らいげつにほんへいきます。"
+  },
+  {
+    "kanji": "日",
+    "reading": "にち",
+    "readingRomaji": "nichi",
+    "meaning": "วัน / พระอาทิตย์",
+    "exampleJp": "日曜日に行きます。",
+    "exampleReading": "にちようび に いきます (nichiyoubi ni ikimasu)",
+    "exampleTh": "จะไปวันอาทิตย์",
+    "speechText": "にち。にちようびにいきます。"
+  },
+  {
+    "kanji": "曜日",
+    "reading": "ようび",
+    "readingRomaji": "youbi",
+    "meaning": "วัน (ในสัปดาห์)",
+    "exampleJp": "今日は何曜日ですか。",
+    "exampleReading": "きょう は なんようび です か (kyou wa nanyoubi desu ka)",
+    "exampleTh": "วันนี้วันอะไรครับ/ค่ะ",
+    "speechText": "ようび。きょうはなんようびですか。"
+  },
+     {
+    "kanji": "日",
+    "reading": "にち",
+    "readingRomaji": "nichi",
+    "meaning": "วัน / พระอาทิตย์",
+    "exampleJp": "３日の日に旅行します。",
+    "exampleReading": "みっか の にち に りょこう します (mikka no nichi ni ryokou shimasu)",
+    "exampleTh": "จะไปเที่ยวในวันที่ 3",
+    "speechText": "にち。みっかのにちにりょこうします。"
+  },
+  {
+    "kanji": "今日",
+    "reading": "きょう",
+    "readingRomaji": "kyou",
+    "meaning": "วันนี้",
+    "exampleJp": "今日はいい天気ですね。",
+    "exampleReading": "きょう は いい てんき です ね (kyou wa ii tenki desu ne)",
+    "exampleTh": "วันนี้อากาศดีจังเลยนะ",
+    "speechText": "きょう。きょうはいいてんきですね。"
+  },
+  {
+    "kanji": "日本語",
+    "reading": "にほんご",
+    "readingRomaji": "nihongo",
+    "meaning": "ภาษาญี่ปุ่น",
+    "exampleJp": "毎日日本語を勉強します。",
+    "exampleReading": "まいにち にほんご を べんきょう します (mainichi nihongo wa benkyou shimasu)",
+    "exampleTh": "เรียนภาษาญี่ปุ่นทุกวัน",
+    "speechText": "にほんご。まいにちにほんごをべんきょうします。"
+  },
+  {
+    "kanji": "本",
+    "reading": "ほん",
+    "readingRomaji": "hon",
+    "meaning": "หนังสือ",
+    "exampleJp": "図書館で本を借りました。",
+    "exampleReading": "としょかん で ほん を かりました (toshokan de hon wo karimashita)",
+    "exampleTh": "ยืมหนังสือที่ห้องสมุดมาแล้ว",
+    "speechText": "ほん。としょかんでほんをかりました。"
+  },
+  {
+    "kanji": "水",
+    "reading": "みず",
+    "readingRomaji": "mizu",
+    "meaning": "น้ำ",
+    "exampleJp": "冷たい水を飲みます。",
+    "exampleReading": "つめたい みず を のみます (tsumetai mizu wo nomimasu)",
+    "exampleTh": "ดื่มน้ำเย็น",
+    "speechText": "みず。つめたいみずをのみます。"
+  },
+  {
+    "kanji": "水",
+    "reading": "すい",
+    "readingRomaji": "sui",
+    "meaning": "น้ำ (มักใช้ในคำประสม เช่น วันพุธ)",
+    "exampleJp": "水曜日にテストがあります。",
+    "exampleReading": "すいようび に てすと が あります (suiyoubi ni tesuto ga arimasu)",
+    "exampleTh": "มีสอบวันพุธ",
+    "speechText": "すい。すいようびにてすとがあります。"
+  },
+  {
+    "kanji": "食べます",
+    "reading": "たべます",
+    "readingRomaji": "tabemasu",
+    "meaning": "กิน / รับประทาน",
+    "exampleJp": "朝ご飯を一緒に食べます。",
+    "exampleReading": "あさごはん を いっしょに たべます (asagohan wo isshoni tabemasu)",
+    "exampleTh": "กินข้าวเช้าด้วยกัน",
+    "speechText": "たべます。あさごはんをいっしょにたべます。"
+  },
+  {
+    "kanji": "飲みます",
+    "reading": "のみます",
+    "readingRomaji": "nomimasu",
+    "meaning": "ดื่ม",
+    "exampleJp": "毎朝コーヒーを飲みます。",
+    "exampleReading": "まいあさ こーひー を のみます (maiasa koohii wo nomimasu)",
+    "exampleTh": "ดื่มกาแฟทุกเช้า",
+    "speechText": "のみます。まいあさこーひーをのみます。"
+  },
+  {
+    "kanji": "魚",
+    "reading": "さかな",
+    "readingRomaji": "sakana",
+    "meaning": "ปลา",
+    "exampleJp": "海で魚が泳いでいます。",
+    "exampleReading": "うみ で さかな が およいでいます (umi de sakana ga oyoideimasu)",
+    "exampleTh": "ปลากำลังว่ายน้ำอยู่ในทะเล",
+    "speechText": "さかな。うみでさかながおよいでいます。"
+  },
+  {
+    "kanji": "肉",
+    "reading": "にく",
+    "readingRomaji": "niku",
+    "meaning": "เนื้อสัตว์",
+    "exampleJp": "スーパーで肉を買いました。",
+    "exampleReading": "すーぱー で にく を かいました (suupaa de niku wo kaimashita)",
+    "exampleTh": "ซื้อเนื้อสัตว์ที่ซูเปอร์มาร์เก็ตมาแล้ว",
+    "speechText": "にく。すーぱーでにくをかいました。"
+  },
+    {
+    "kanji": "好き（な）",
+    "reading": "すき（な）",
+    "readingRomaji": "suki(na)",
+    "meaning": "ชอบ",
+    "exampleJp": "私は日本料理が好きです。",
+    "exampleReading": "わたし は にほんりょうり が すき です (watashi wa nihonryouri ga suki desu)",
+    "exampleTh": "ฉันชอบอาหารญี่ปุ่น",
+    "speechText": "すき。わたしはにほんりょうりがすきです。"
+  },
+  {
+    "kanji": "家",
+    "reading": "いえ",
+    "readingRomaji": "ie",
+    "meaning": "บ้าน",
+    "exampleJp": "私の家は駅の近くにあります。",
+    "exampleReading": "わたし の いえ は えき の ちかく に あります (watashi no ie wa eki no chikaku ni arimasu)",
+    "exampleTh": "บ้านของฉันอยู่ใกล้กับสถานีรถไฟ",
+    "speechText": "いえ。わたしのいえはえきのちかくにあります。"
+  },
+  {
+    "kanji": "新しい",
+    "reading": "あたらしい",
+    "readingRomaji": "atarashii",
+    "meaning": "ใหม่",
+    "exampleJp": "新しい靴を買いました。",
+    "exampleReading": "あたらしい くつ を かいました (atarashii kutsu wo kaimashita)",
+    "exampleTh": "ซื้อรองเท้าคู่ใหม่มาแล้ว",
+    "speechText": "あたらしい。あたらしいくつをかいました。"
+  },
+  {
+    "kanji": "広い",
+    "reading": "ひろい",
+    "readingRomaji": "hiroi",
+    "meaning": "กว้าง / กว้างขวาง",
+    "exampleJp": "この部屋は広くてきれいです。",
+    "exampleReading": "この へや は ひろくて きれい です (kono heya wa hirokute kirei desu)",
+    "exampleTh": "ห้องนี้กว้างและสะอาดสวยงาม",
+    "speechText": "ひろい。このへやはひろくてきれいです。"
+  },
+  {
+    "kanji": "古い",
+    "reading": "ふるい",
+    "readingRomaji": "furui",
+    "meaning": "เก่า",
+    "exampleJp": "これは古い本ですが、とてもおもしろいです。",
+    "exampleReading": "これ は ふるい ほん です が、とても おもしろい です (kore wa furui hon です ga, totemo omashiroi desu)",
+    "exampleTh": "นี่เป็นหนังสือเก่าแต่สนุกมาก",
+    "speechText": "ふるい。これはふるいほんですが、とてもおもしろいです。"
+  },
+  {
+    "kanji": "上",
+    "reading": "うえ",
+    "readingRomaji": "ue",
+    "meaning": "ข้างบน / บน",
+    "exampleJp": "机の上に本があります。",
+    "exampleReading": "つくえ の うえ に ほん が あります (tsukue no ue ni hon ga arimasu)",
+    "exampleTh": "มีหนังสืออยู่บนโต๊ะ",
+    "speechText": "うえ。つくえのうえにほんがあります。"
+  },
+  {
+    "kanji": "下",
+    "reading": "した",
+    "readingRomaji": "shita",
+    "meaning": "ข้างล่าง / ใต้",
+    "exampleJp": "椅子の下に猫がいます。",
+    "exampleReading": "いす の した に ねこ が います (isu no shita ni neko ga imasu)",
+    "exampleTh": "มีแมวอยู่ใต้เก้าอี้",
+    "speechText": "した。いすのしたにねこがいます。"
+  },
+  {
+    "kanji": "中",
+    "reading": "なか",
+    "readingRomaji": "naka",
+    "meaning": "ข้างใน / ใน",
+    "exampleJp": "カバンの中に財布があります。",
+    "exampleReading": "かばん の なか に さいふ が あります (kaban no naka ni saifu ga arimasu)",
+    "exampleTh": "มีกระเป๋าสตางค์อยู่ข้างในกระเป๋า",
+    "speechText": "なか。かばんのなかにさいふがあります。"
+  },
+  {
+    "kanji": "月",
+    "reading": "げつ",
+    "readingRomaji": "getsu",
+    "meaning": "ดวงจันทร์ (มักใช้ในคำประสม เช่น วันจันทร์)",
+    "exampleJp": "月曜日に友達と会います。",
+    "exampleReading": "げつようび に ともだち と あいます (getsuyoubi ni tomodachi to aimasu)",
+    "exampleTh": "จะเจอเพื่อนวันจันทร์",
+    "speechText": "げつ。げつようびにともだちとあいます。"
+  },
+  {
+    "kanji": "月",
+    "reading": "がつ",
+    "readingRomaji": "gatsu",
+    "meaning": "เดือน (ใช้บอกชื่อเดือน)",
+    "exampleJp": "私は４月に日本へ来ました。",
+    "exampleReading": "わたし は よんがつ に にほん へ きました (watashi wa yongatsu ni nihon he kimashita)",
+    "exampleTh": "ฉันมาประเทศญี่ปุ่นเมื่อเดือนเมษายน",
+    "speechText": "がつ。わたしはよんがつににほんへきました。"
+  },
+    {
+    "kanji": "火",
+    "reading": "か",
+    "readingRomaji": "ka",
+    "meaning": "ไฟ (มักใช้ในคำประสม เช่น วันอังคาร)",
+    "exampleJp": "火曜日に日本語のクラスがあります。",
+    "exampleReading": "かようび に にほんご の くらす が あります (kayoubi ni nihongo no kurasu ga arimasu)",
+    "exampleTh": "มีเรียนภาษาญี่ปุ่นวันอังคาร",
+    "speechText": "か。かようびににほんごのくらすがあります。"
+  },
+  {
+    "kanji": "木",
+    "reading": "もく",
+    "readingRomaji": "moku",
+    "meaning": "ต้นไม้ (มักใช้ในคำประสม เช่น วันพฤหัสบดี)",
+    "exampleJp": "木曜日の夜に買い物をします。",
+    "exampleReading": "もくようび の よる に かいもの を します (mokuyoubi no yoru ni kaimono wo shimasu)",
+    "exampleTh": "จะไปซื้อของตอนเย็นวันพฤหัสบดี",
+    "speechText": "もく。もくようびのよるにかいものをします。"
+  },
+  {
+    "kanji": "金",
+    "reading": "きん",
+    "readingRomaji": "kin",
+    "meaning": "ทอง / เงิน (มักใช้ในคำประสม เช่น วันศุกร์)",
+    "exampleJp": "金曜日に友達とご飯を食べます。",
+    "exampleReading": "きんようび に ともだち と ごはん を たべます (kinyoubi ni tomodachi to gohan wo tabemasu)",
+    "exampleTh": "จะกินข้าวกับเพื่อนวันศุกร์",
+    "speechText": "きん。きんようびにともだちとごはんをたべます。"
+  },
+  {
+    "kanji": "土",
+    "reading": "ど",
+    "readingRomaji": "do",
+    "meaning": "ดิน (มักใช้ในคำประสม เช่น วันเสาร์)",
+    "exampleJp": "土曜日はどこも行きません。",
+    "exampleReading": "どようび は どこ も いきません (doyoubi wa doko mo ikimasen)",
+    "exampleTh": "วันเสาร์จะไม่ไปไหนเลย",
+    "speechText": "ど。どようびはどこもいきません。"
+  },
+  {
+    "kanji": "朝",
+    "reading": "あさ",
+    "readingRomaji": "asa",
+    "meaning": "ตอนเช้า / เช้า",
+    "exampleJp": "朝、早く起きます。",
+    "exampleReading": "あさ、はやく おきます (asa, hayaku okimasu)",
+    "exampleTh": "ตอนเช้าตื่นนอนแต่เช้า",
+    "speechText": "あさ。あさ、はやくおきます。"
+  },
+  {
+    "kanji": "昼",
+    "reading": "ひる",
+    "readingRomaji": "hiru",
+    "meaning": "ตอนกลางวัน / กลางวัน",
+    "exampleJp": "昼ご飯にラーメンを食べました。",
+    "exampleReading": "ひるごはん に らーめん を たべました (hirugohan ni raamen wo tabemashita)",
+    "exampleTh": "กินราเมนเป็นอาหารกลางวันมาแล้ว",
+    "speechText": "ひる。昼ご飯にラーメンを食べました。"
+  },
+  {
+    "kanji": "夜",
+    "reading": "よる",
+    "readingRomaji": "yoru",
+    "meaning": "ตอนกลางคืน / เย็น",
+    "exampleJp": "夜、１１時に寝ます。",
+    "exampleReading": "よる、じゅういちじ に ねます (yoru, juuichiji ni nemasu)",
+    "exampleTh": "ตอนกลางคืนนอนตอน 5 โมงเย็น (23:00 น.)",
+    "speechText": "よる。よる、じゅういちじにねます。"
+  },
+  {
+    "kanji": "時",
+    "reading": "じ",
+    "readingRomaji": "ji",
+    "meaning": "โมง / เวลา (ใช้บอกชั่วโมง)",
+    "exampleJp": "今は何時ですか。",
+    "exampleReading": "いま は なんじ です か (ima wa nanji desu ka)",
+    "exampleTh": "ตอนนี้กี่โมงแล้วครับ/ค่ะ",
+    "speechText": "じ。いまはなんじですか。"
+  },
+  {
+    "kanji": "分",
+    "reading": "ふん",
+    "readingRomaji": "fun",
+    "meaning": "นาที",
+    "exampleJp": "あと５分待ってください。",
+    "exampleReading": "あと ごふん まってください (ato gofun matte kudasai)",
+    "exampleTh": "กรุณารออีก 5 นาทีนะ",
+    "speechText": "ふん。あとごふんまってください。"
+  },
+  {
+    "kanji": "半",
+    "reading": "はん",
+    "readingRomaji": "han",
+    "meaning": "ครึ่ง / ครึ่งชั่วโมง",
+    "exampleJp": "今、７時半です。",
+    "exampleReading": "いま、しちじはん です (ima, shichijihan desu)",
+    "exampleTh": "ตอนนี้เวลา 7 โมงครึ่ง",
+    "speechText": "はん。いま、しちじはんです。"
+  },
             {
-                kanji: "車",
-                reading: "くるま",
-                readingRomaji: "kuruma",
-                meaning: "รถยนต์",
-                exampleJp: "新しい車を買いました。",
-                exampleReading: "あたらしい くるま を かいました (atarashii kuruma wo kaimashita)",
-                exampleTh: "ซื้อรถยนต์คันใหม่มาแล้วครับ",
-                speechText: "くるま。あたらしいくるまをかいました。"
-            },
-            {
-                kanji: "食べる",
-                reading: "たべる",
-                readingRomaji: "taberu",
-                meaning: "กิน",
-                exampleJp: "いっしょに昼ご飯を食べませんか。",
-                exampleReading: "いっしょに ひるごはん を たべませんか (issho ni hirugohan wo tabemasen ka)",
-                exampleTh: "ทานอาหารกลางวันด้วยกันไหมครับ",
-                speechText: "たべる。いっしょにひるごはんをたべませんか。"
-            },
-            {
-                kanji: "日本語",
-                reading: "にほんご",
-                readingRomaji: "nihongo",
-                meaning: "ภาษาญี่ปุ่น",
-                exampleJp: "日本語の勉強は面白いです。",
-                exampleReading: "にほんご の べんきょう は おもしろいです (nihongo no benkyou wa omoshiroi desu)",
-                exampleTh: "การเรียนภาษาญี่ปุ่นสนุกสนานน่าสนใจครับ",
-                speechText: "にほんご。にほんごのべんきょうはおもしろいです。"
-            },
-            {
-                kanji: "水",
-                reading: "みず",
-                readingRomaji: "mizu",
-                meaning: "น้ำ",
-                exampleJp: "冷たい水を飲みたいです。",
-                exampleReading: "つめたい みず を のみたいです (tsumetai mizu wo nomitai desu)",
-                exampleTh: "อยากดื่มน้ำเย็นๆ ครับ",
-                speechText: "みず。つめたいみずをのみたいです。"
-            },
-            {
-                kanji: "飲む",
-                reading: "のむ",
-                readingRomaji: "nomu",
-                meaning: "ดื่ม",
-                exampleJp: "毎朝コーヒーを飲みます。",
-                exampleReading: "まいあさ こーひー を のみます (maiasa ko-hi- wo nomimasu)",
-                exampleTh: "ดื่มกาแฟทุกเช้าครับ",
-                speechText: "のむ。まいあさこーひーをのみます。"
-            },
-            {
-                kanji: "行く",
-                reading: "いく",
-                readingRomaji: "iku",
-                meaning: "ไป",
-                exampleJp: "あしたデパートに行きます。",
-                exampleReading: "あした でぱーと に いきます (ashita depa-to ni ikimasu)",
-                exampleTh: "พรุ่งนี้จะไปห้างสรรพสินค้าครับ",
-                speechText: "いく。あしたでぱーとにいきます。"
-            },
-            {
-                kanji: "友だち",
-                reading: "ともだち",
-                readingRomaji: "tomodachi",
-                meaning: "เพื่อน",
-                exampleJp: "友だちと遊びに行きます。",
-                exampleReading: "ともだち と あそび に いきます (tomodachi to asobi ni ikimasu)",
-                exampleTh: "ไปเที่ยวเล่นกับเพื่อนครับ",
-                speechText: "ともだち。ともだちとあそびにいきます。"
-            },
-            {
-                kanji: "大きい",
-                reading: "おおきい",
-                readingRomaji: "ookii",
-                meaning: "ใหญ่",
-                exampleJp: "これはとても大きい家ですね。",
-                exampleReading: "これ は とても おおきい いえ ですね (kore wa totemo ookii ie desu ne)",
-                exampleTh: "นี่เป็นบ้านที่ใหญ่มากเลยนะครับ",
-                speechText: "おおきい。これはとてもおおきいいえですね。"
-            },
-            {
-                kanji: "買う",
-                reading: "かう",
-                readingRomaji: "kau",
-                meaning: "ซื้อ",
-                exampleJp: "スーパーでリンゴを買います。",
-                exampleReading: "すーぱー で りんご を かいます (su-pa- de ringo wo kaimasu)",
-                exampleTh: "ซื้อแอปเปิ้ลที่ซูเปอร์มาร์เก็ตครับ",
-                speechText: "かう。すーぱーでりんごをかいます。"
-            }
+    "kanji": "枚",
+    "reading": "まい",
+    "readingRomaji": "mai",
+    "meaning": "แผ่น / ใบ (ลักษณนามของสิ่งของที่มีลักษณะแบน)",
+    "exampleJp": "シャツを２枚買いました。",
+    "exampleReading": "しゃつ を にまい かいました (shatsu wo nimai kaimashita)",
+    "exampleTh": "ซื้อเสื้อเชิ้ตมา 2 ตัว",
+    "speechText": "まい。しゃつをにまいかいました。"
+  },
+  {
+    "kanji": "読みます",
+    "reading": "よみます",
+    "readingRomaji": "yomimasu",
+    "meaning": "อ่าน",
+    "exampleJp": "毎晩、寝る前に本を読みます。",
+    "exampleReading": "まいばん、ねる まえ に ほん を よみます (maiban, neru mae ni hon wo yomimasu)",
+    "exampleTh": "อ่านหนังสือทุกคืนก่อนนอน",
+    "speechText": "よみます。まいばん、ねるまえにほんをよみます。"
+  },
+  {
+    "kanji": "聞きます",
+    "reading": "ききます",
+    "readingRomaji": "kikimasu",
+    "meaning": "ฟัง / ถาม",
+    "exampleJp": "部屋で音楽を聞きます。",
+    "exampleReading": "へや で おんがく を ききます (heya de ongaku wo kikimasu)",
+    "exampleTh": "ฟังเพลงในห้อง",
+    "speechText": "ききます。へやでおんがくをききます。"
+  },
+  {
+    "kanji": "見ます",
+    "reading": "みます",
+    "readingRomaji": "mimasu",
+    "meaning": "ดู / มอง / เห็น",
+    "exampleJp": "週末に映画を見ます。",
+    "exampleReading": "しゅうまつ に えいが を みます (shuumatsu ni eiga wo mimasu)",
+    "exampleTh": "ดูภาพยนตร์ในวันหยุดสุดสัปดาห์",
+    "speechText": "みます。しゅうまつにえいがをみます。"
+  },
+  {
+    "kanji": "友だち",
+    "reading": "ともだち",
+    "readingRomaji": "tomodachi",
+    "meaning": "เพื่อน",
+    "exampleJp": "明日、友だちと遊びます。",
+    "exampleReading": "あした、ともだち と あそびます (ashita, tomodachi to asobimasu)",
+    "exampleTh": "พรุ่งนี้จะไปเที่ยวเล่นกับเพื่อน",
+    "speechText": "ともだち。あした、ともだちとあそびます。"
+  },
+  {
+    "kanji": "何",
+    "reading": "なに",
+    "readingRomaji": "nani",
+    "meaning": "อะไร",
+    "exampleJp": "これは何の本ですか。",
+    "exampleReading": "これ は なん の ほん です か (kore wa nan no hon desu ka)",
+    "exampleTh": "นี่คือหนังสืออะไรครับ/ค่ะ",
+    "speechText": "なに。これはなんの本ですか。"
+  },
+  {
+    "kanji": "年",
+    "reading": "ねん",
+    "readingRomaji": "nen",
+    "meaning": "ปี",
+    "exampleJp": "私は２年前に日本に来ました。",
+    "exampleReading": "わたし は にねんまえ に にほん に きました (watashi wa ninenmae ni nihon ni kimashita)",
+    "exampleTh": "ฉันมาประเทศญี่ปุ่นเมื่อ 2 ปีที่แล้ว",
+    "speechText": "ねん。わたしはにねんまえににほんにきました。"
+  },
+  {
+    "kanji": "今週",
+    "reading": "こんしゅう",
+    "readingRomaji": "konshuu",
+    "meaning": "สัปดาห์นี้",
+    "exampleJp": "今週はとても忙しいです。",
+    "exampleReading": "こんしゅう は とても いそがしい です (konshuu wa totemo isogashii desu)",
+    "exampleTh": "สัปดาห์นี้ยุ่งมากเลย",
+    "speechText": "こんしゅう。こんしゅうはとてもいそがしいです。"
+  },
+  {
+    "kanji": "今度",
+    "reading": "こんど",
+    "readingRomaji": "kondo",
+    "meaning": "คราวหน้า / ครั้งหน้า",
+    "exampleJp": "今度、一緒にご飯を食べましょう。",
+    "exampleReading": "こんど、いっしょに ごはん を たべましょう (kondo, isshoni gohan wo tabemashou)",
+    "exampleTh": "คราวหน้าไปกินข้าวด้วยกันนะ",
+    "speechText": "こんど。今度、一緒にご飯を食べましょう。"
+  },
+  {
+    "kanji": "来週",
+    "reading": "らいしゅう",
+    "readingRomaji": "raishuu",
+    "meaning": "สัปดาห์หน้า",
+    "exampleJp": "来週の月曜日にテストがあります。",
+    "exampleReading": "らいしゅう の げつようび に てすと が あります (raishuu no getsuyoubi ni tesuto ga arimasu)",
+    "exampleTh": "มีสอบวันจันทร์หน้า",
+    "speechText": "らいしゅう。らいしゅうのげつようびにてすとがあります。"
+  },{
+    "kanji": "東",
+    "reading": "ひがし",
+    "readingRomaji": "higashi",
+    "meaning": "ทิศตะวันออก",
+    "exampleJp": "太陽は東から昇ります。",
+    "exampleReading": "たいよう は ひがし から のぼります (taiyou wa higashi kara noborimasu)",
+    "exampleTh": "พระอาทิตย์ขึ้นทางทิศตะวันออก",
+    "speechText": "ひがし。たいようはひがしからのぼります。"
+  },
+  {
+    "kanji": "西",
+    "reading": "にし",
+    "readingRomaji": "nishi",
+    "meaning": "ทิศตะวันตก",
+    "exampleJp": "駅の西口で待ち合わせをしましょう。",
+    "exampleReading": "えき の にしぐち で まちあわせ を しましょう (eki no nishiguchi de machiawase wo shimashou)",
+    "exampleTh": "นัดเจอกันที่ประตูทางทิศตะวันตกของสถานีรถไฟกันเถอะ",
+    "speechText": "にし。えきのにしぐちでまちあわせをしましょう。"
+  },
+  {
+    "kanji": "南",
+    "reading": "みなみ",
+    "readingRomaji": "minami",
+    "meaning": "ทิศใต้",
+    "exampleJp": "日本の南には綺麗な海があります。",
+    "exampleReading": "にほん の みなみ に は きれいな うみ が あります (nihon no minami ni wa kareina umi ga arimasu)",
+    "exampleTh": "ทางทิศใต้ของประเทศญี่ปุ่นมีทะเลที่สวยงาม",
+    "speechText": "みなみ。にほんのみなみにはきれいなうみがあります。"
+  },
+  {
+    "kanji": "北",
+    "reading": "きた",
+    "readingRomaji": "kita",
+    "meaning": "ทิศเหนือ",
+    "exampleJp": "冬に日本の北のほうへ旅行しました。",
+    "exampleReading": "ふゆ に にほん の きた の ほう へ りょこう しました (fuyu ni nihon no kita no hou he ryokou shimashita)",
+    "exampleTh": "ไปเที่ยวทางตอนเหนือของประเทศญี่ปุ่นในฤดูหนาวมาแล้ว",
+    "speechText": "きた。ふゆににほんのきたのほうへりょこうしました。"
+  },
+  {
+    "kanji": "会社",
+    "reading": "かいしゃ",
+    "readingRomaji": "kaisha",
+    "meaning": "บริษัท",
+    "exampleJp": "毎朝８時に会社へ行きます。",
+    "exampleReading": "まいあさ はちじ に かいしゃ へ いきます (maiasa hachiji ni kaisha he ikimasu)",
+    "exampleTh": "ไปบริษัทตอน 8 โมงเช้าทุกวัน",
+    "speechText": "かいしゃ。まいあさはちじにかいしゃへいきます。"
+  },
+  {
+    "kanji": "会います",
+    "reading": "あいます",
+    "readingRomaji": "aimasu",
+    "meaning": "เจอ / พบ",
+    "exampleJp": "週末にデパートで友達に会います。",
+    "exampleReading": "しゅうまつ に でぱーと で ともだち に あいます (shuumatsu ni depaato de tomodachi ni aimasu)",
+    "exampleTh": "จะเจอเพื่อนที่ห้างสรรพสินค้าในวันหยุดสุดสัปดาห์",
+    "speechText": "あいます。しゅうまつにデパートでともだちにあいます。"
+  },
+  {
+    "kanji": "来ます",
+    "reading": "きます",
+    "readingRomaji": "kimasu",
+    "meaning": "มา",
+    "exampleJp": "明日、私の家へ遊びに来てください。",
+    "exampleReading": "あした、わたし の いえ へ あそび に きてください (ashita, watashi no ie he asobi ni kite kudasai)",
+    "exampleTh": "พรุ่งนี้กรุณามาเที่ยวที่บ้านของฉันนะ",
+    "speechText": "きます。あした、わたしのいえへあそびにきてください。"
+  },
+  {
+    "kanji": "行きます",
+    "reading": "いきます",
+    "readingRomaji": "ikimasu",
+    "meaning": "ไป",
+    "exampleJp": "来週、京都へ行きます。",
+    "exampleReading": "らいしゅう、きょうと へ いきます (raishuu, kyouto he ikimasu)",
+    "exampleTh": "สัปดาห์หน้าจะไปเกียวโต",
+    "speechText": "いきます。らいしゅう、きょうとへいきます。"
+  },
+  {
+    "kanji": "旅行します",
+    "reading": "りょこうします",
+    "readingRomaji": "ryokoushimasu",
+    "meaning": "ท่องเที่ยว / เที่ยว",
+    "exampleJp": "休みの日に関西を旅行します。",
+    "exampleReading": "やすみ の ひ に かんさい を りょこう します (yasumi no hi ni kansai wo ryokou shimasu)",
+    "exampleTh": "จะไปเที่ยวภูมิภาคคันไซในวันหยุด",
+    "speechText": "りょこうします。やすみのひにかんさいをりょこうします。"
+  },
+  {
+    "kanji": "乗ります",
+    "reading": "のります",
+    "readingRomaji": "norimasu",
+    "meaning": "ขึ้น / โดยสาร (ยานพาหนะ)",
+    "exampleJp": "ここから電車に乗ります。",
+    "exampleReading": "ここ から でんしゃ に のります (koko kara densha ni norimasu)",
+    "exampleTh": "จะขึ้นรถไฟจากที่นี่",
+    "speechText": "のります。ここからでんしゃにのります。"
+  }
+            
         ];
 
         // --- 2. ฟังก์ชันระบบและการนำทางหน้าจอ ---
