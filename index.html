@@ -1320,7 +1320,12 @@
     <script>
         // --- 1. ข้อมูลคันจิ JFT-Basic (A2) พร้อมคำอ่านสะกดประโยคตัวอย่างครบถ้วน ---
         const kanjiData = [
-                {
+           
+
+        ];
+
+        // --- 2. ฟังก์ชันระบบและการนำทางหน้าจอ ---
+        let isQuizPlaying = false; // บันทึกสถานะว่ากำลังทำแบบทดสอบเพื่อป้องกันการเปลี่ยนหน้า (Anti-Cheat)     {
     "kanji": "名前",
     "reading": "なまえ",
     "readingRomaji": "namae",
@@ -2519,10 +2524,6 @@
     "speechText": "かぞく。週末に家族と一緒に旅行します。"
   }         
 
-        ];
-
-        // --- 2. ฟังก์ชันระบบและการนำทางหน้าจอ ---
-        let isQuizPlaying = false; // บันทึกสถานะว่ากำลังทำแบบทดสอบเพื่อป้องกันการเปลี่ยนหน้า (Anti-Cheat)
 
         function updateNavVisuals() {
             const listBtn = document.getElementById('nav-list');
@@ -3233,4 +3234,5 @@
     </script>
 </body>
 </html>
+
 
