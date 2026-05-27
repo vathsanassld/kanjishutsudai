@@ -85,7 +85,7 @@
             border-bottom-right-radius: var(--radius-lg);
             box-shadow: 0 4px 20px rgba(74, 111, 165, 0.2);
             position: relative;
-            flex-shrink: 0; /* ป้องกันการหดตัว */
+            flex-shrink: 0;
         }
 
         header h1 {
@@ -116,7 +116,7 @@
             background: var(--card-bg);
             border-top: 1px solid var(--border);
             padding: 6px 0 calc(env(safe-area-inset-bottom) + 6px);
-            flex-shrink: 0; /* ป้องกันการหดตัว */
+            flex-shrink: 0;
             position: relative;
             z-index: 100;
         }
@@ -148,6 +148,12 @@
 
         .nav-btn.active i {
             transform: translateY(-2px);
+        }
+
+        /* เพิ่มเอฟเฟกต์สีจางให้เมนูเมื่อถูกล็อกป้องกันการโกง */
+        .nav-btn.disabled-lock {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         /* การซ่อน/แสดงหน้า */
@@ -1002,6 +1008,97 @@
             padding: 30px 10px;
             font-size: 0.85rem;
         }
+
+        /* --- สไตล์ของกล่องยืนยันการทำรายการแบบกำหนดเอง (Custom Confirmation Modal CSS) --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .custom-modal {
+            background: white;
+            border-radius: var(--radius-md);
+            width: 85%;
+            max-width: 340px;
+            padding: 22px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.18);
+            transform: scale(0.9);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .modal-overlay.show .custom-modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal-message {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            flex: 1;
+        }
+
+        .modal-btn-confirm {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #b5202b;
+        }
+
+        .modal-btn-cancel {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .modal-btn-cancel:hover {
+            background: #dbe7f5;
+        }
     </style>
 </head>
 <body>
@@ -1009,6 +1106,18 @@
     <div class="app-container">
         <!-- Toast System -->
         <div id="toast-container" class="toast-container"></div>
+
+        <!-- กล่องยืนยันการทำรายการแบบกำหนดเอง (Custom Modal Overlay) -->
+        <div id="confirm-modal-overlay" class="modal-overlay">
+            <div class="custom-modal">
+                <div class="modal-title" id="modal-title">ยืนยันการทำรายการ</div>
+                <div class="modal-message" id="modal-message">คุณแน่ใจหรือไม่ที่จะทำรายการนี้?</div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-cancel" id="modal-btn-cancel">ยกเลิก</button>
+                    <button class="modal-btn modal-btn-confirm" id="modal-btn-confirm">ตกลง</button>
+                </div>
+            </div>
+        </div>
 
         <header>
             <h1 id="app-title">JFT-Basic Kanji</h1>
@@ -1211,7 +1320,7 @@
     <script>
         // --- 1. ข้อมูลคันจิ JFT-Basic (A2) พร้อมคำอ่านสะกดประโยคตัวอย่างครบถ้วน ---
         const kanjiData = [
-            {
+                {
     "kanji": "名前",
     "reading": "なまえ",
     "readingRomaji": "namae",
@@ -2409,11 +2518,32 @@
     "exampleTh": "ไปเที่ยวกับครอบครัวในวันหยุดสุดสัปดาห์",
     "speechText": "かぞく。週末に家族と一緒に旅行します。"
   }         
-            
+
         ];
 
         // --- 2. ฟังก์ชันระบบและการนำทางหน้าจอ ---
+        let isQuizPlaying = false; // บันทึกสถานะว่ากำลังทำแบบทดสอบเพื่อป้องกันการเปลี่ยนหน้า (Anti-Cheat)
+
+        function updateNavVisuals() {
+            const listBtn = document.getElementById('nav-list');
+            const historyBtn = document.getElementById('nav-history');
+            
+            if (isQuizPlaying) {
+                listBtn.classList.add('disabled-lock');
+                historyBtn.classList.add('disabled-lock');
+            } else {
+                listBtn.classList.remove('disabled-lock');
+                historyBtn.classList.remove('disabled-lock');
+            }
+        }
+
         function switchPage(pageName) {
+            // ระบบป้องกันการเปลี่ยนหน้าขณะทำควิซเพื่อลอกข้อสอบ (Anti-Cheat Prevention System)
+            if (isQuizPlaying && pageName !== 'quiz') {
+                showToast("ไม่สามารถสลับเมนูได้ระหว่างทำควิซ! กรุณากดปุ่ม 'หน้าหลักตั้งค่า' เพื่อออกจากควิซก่อนครับ", "warning");
+                return;
+            }
+
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
@@ -2426,11 +2556,11 @@
             } else if (pageName === 'history') {
                 document.getElementById('page-history').classList.add('active');
                 document.getElementById('nav-history').classList.add('active');
-                renderHistoryPage(); // อัปเดตข้อมูลประวัติแบบเรียลไทม์
+                renderHistoryPage(); // อัปเดตสถิติประวัติ
             }
         }
 
-        // แจ้งเตือน Toast สไตล์สวยงามกะทัดรัด
+        // ระบบแจ้งเตือน Toast 
         function showToast(message, type = "warning") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -2450,7 +2580,7 @@
             }, 3000);
         }
 
-        // สังเคราะห์เสียงพูดภาษาญี่ปุ่น (เฉพาะหน้ารายการคำศัพท์หลักเท่านั้น ไม่มีเสียงในตัวควิซ)
+        // สังเคราะห์เสียงพูดภาษาญี่ปุ่น (เฉพาะหน้ารายการคำศัพท์หลักเท่านั้น)
         function speak(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -2468,7 +2598,7 @@
             const totalCount = kanjiData.length;
             document.getElementById('total-kanji-hint').innerText = totalCount;
             
-            // ทำให้เป็นกล่องข้อความว่างเปล่าตามที่คุณขอ
+            // ทำให้เป็นกล่องข้อความว่างเปล่า
             document.getElementById('quiz-start-range').value = "";
             document.getElementById('quiz-end-range').value = "";
         }
@@ -2498,10 +2628,44 @@
             return true;
         }
 
+        // แสดงผลกล่องโมดอลตกลง/ยกเลิก กำหนดเอง (Custom Confirm Modal)
+        let customConfirmCallback = null;
+
+        function showCustomConfirm(title, message, onConfirm) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            customConfirmCallback = onConfirm;
+            document.getElementById('confirm-modal-overlay').classList.add('show');
+        }
+
+        function closeCustomConfirm() {
+            document.getElementById('confirm-modal-overlay').classList.remove('show');
+            customConfirmCallback = null;
+        }
+
+        // จัดเตรียมการตั้งค่าปุ่มใน Custom Modal ยืนยันการทำรายการ
+        document.getElementById('modal-btn-cancel').onclick = closeCustomConfirm;
+        document.getElementById('modal-btn-confirm').onclick = function() {
+            if (customConfirmCallback) {
+                customConfirmCallback();
+            }
+            closeCustomConfirm();
+        };
+
+        // กลับไปหน้าตั้งค่าเมื่อกดปุ่มโฮม (พร้อมระบบสืบถามเพื่อป้องกันการกดพลาด)
         function exitToSetup() {
-            document.getElementById('quiz-setup').style.display = 'block';
-            document.getElementById('quiz-play').style.display = 'none';
-            document.getElementById('quiz-result').style.display = 'none';
+            showCustomConfirm(
+                "ยืนยันการยกเลิก", 
+                "คุณแน่ใจหรือไม่ว่าต้องการออกจากแบบทดสอบปัจจุบัน? คะแนนและความก้าวหน้าในรอบนี้จะไม่ถูกบันทึก",
+                function() {
+                    isQuizPlaying = false;
+                    updateNavVisuals();
+                    document.getElementById('quiz-setup').style.display = 'block';
+                    document.getElementById('quiz-play').style.display = 'none';
+                    document.getElementById('quiz-result').style.display = 'none';
+                    initSetupRanges();
+                }
+            );
         }
 
         // แสดงรายการคันจิหน้าหลัก
@@ -2537,7 +2701,7 @@
             });
         }
 
-        // --- 3. ระบบควบคุม Quiz การตรวจจับสถิติ และประวัติสะสม ---
+        // --- 3. ระบบควบคุม Quiz และประวัติสะสม ---
         let quizPool = [];
         let currentQuestionIndex = 0;
         let quizState = "READING_INPUT"; // READING_INPUT, READING_CORRECTED, MEANING_CHOICE, GO_NEXT, GO_SUMMARY
@@ -2590,6 +2754,10 @@
             firstTimeMeaningCorrectCount = 0;
             quizReportData = [];
 
+            // ทำการล็อกและระบุว่าระบบควิซเริ่มงานแล้ว เพื่อความปลอดภัยจากการโกง
+            isQuizPlaying = true;
+            updateNavVisuals();
+
             // จับเวลาเริ่มต้น
             quizStartTime = Date.now();
 
@@ -2620,10 +2788,10 @@
             inputEl.value = "";
             inputEl.disabled = false;
             inputEl.style.display = "block";
-            inputEl.placeholder = "พิมพ์คำตอบที่นี่..."; // เว้นว่างเฉยๆ ป้องกันการโกง
+            inputEl.placeholder = "พิมพ์คำตอบที่นี่...";
             inputEl.focus();
 
-            // ล้างหน้าจอและสถานะความถูกต้องสะสม
+            // ล้างหน้าจอสะสมรอบเดิม
             document.getElementById('quiz-choices-container').style.display = "none";
             document.getElementById('quiz-success-state').style.display = "none";
             document.getElementById('maru-overlay').classList.remove('show');
@@ -2678,7 +2846,7 @@
                     // ปรากฏอนิเมชัน Maru วงกลมสีเขียว
                     document.getElementById('maru-overlay').classList.add('show');
                     
-                    // ปรับโครงสร้างกล่องข้อความ (Morphing State) ปิดช่องอินพุตเดิม แล้วเปิดการ์ดแสดงคำเฉลยความถูกต้องสวยงามแทน
+                    // ปรับโครงสร้างกล่องข้อความ (Morphing State) 
                     inputEl.style.display = "none";
                     document.getElementById('quiz-instruction').style.display = "none";
                     hintBox.style.display = 'none';
@@ -2697,7 +2865,7 @@
                     
                     // ปรากฏแอนิเมชันสั่นเมื่อพิมพ์ผิด
                     inputEl.classList.remove('shake');
-                    void inputEl.offsetWidth; // บังคับรีเฟรช DOM เพื่อให้แอนิเมชันทำงานซ้ำได้
+                    void inputEl.offsetWidth; 
                     inputEl.classList.add('shake');
 
                     feedbackBox.className = "feedback-box wrong";
@@ -2724,7 +2892,7 @@
                 document.getElementById('quiz-success-state').style.display = "none";
                 feedbackBox.style.display = 'none';
 
-                // ซ่อนปุ่มด้านล่างไว้ เพื่อบังคับให้ผู้เรียนต้องเลือกกดช้อยส์ 3 ข้อก่อน
+                // ซ่อนปุ่มด้านล่างเพื่อควบคุมให้อ่านคำเฉลยก่อนสไลด์ไป
                 actionBtn.style.display = 'none';
 
                 // บรรจุช้อยส์ 3 ตัวเลือก
@@ -2782,15 +2950,13 @@
                     totalAttempts: totalAttemptsForCurrent
                 });
 
-                // ตรวจเช็กว่านี่เป็นข้อสอบข้อสุดท้ายหรือไม่
                 const isLastQuestion = (currentQuestionIndex === quizPool.length - 1);
                 
                 if (!isLastQuestion) {
                     quizState = "GO_NEXT";
                     actionBtn.innerHTML = "ไปยังข้อถัดไป <i class='fa-solid fa-arrow-right'></i>";
-                    actionBtn.style.display = 'flex'; // แสดงกึ่งกลางอย่างลงตัว
+                    actionBtn.style.display = 'flex'; 
                 } else {
-                    // ปุ่มเฉลยประเมินผลจะแสดงขึ้นในข้อสุดท้ายหลังจากควิซถูกต้องแล้วเท่านั้น!
                     quizState = "GO_SUMMARY";
                     actionBtn.innerHTML = "ดูรายงานผลสัมฤทธิ์ <i class='fa-solid fa-chart-simple'></i>";
                     actionBtn.style.display = 'flex'; 
@@ -2809,10 +2975,14 @@
 
         // รายงานคะแนนและบันทึกสถิติประวัติสะสม
         function showQuizSummary() {
+            // ปลดล็อกการเปลี่ยนหน้าเพื่อให้นักเรียนกลับไปดูรายการคันจิหรือสรุปประวัติได้เนื่องจากสอบเสร็จสิ้นแล้ว
+            isQuizPlaying = false;
+            updateNavVisuals();
+
             document.getElementById('quiz-play').style.display = 'none';
             document.getElementById('quiz-result').style.display = 'block';
 
-            // คำนวณเปอร์เซ็นต์ความแม่นยำ (Perfect 1st try) ของสองพาร์ทแยกเป็นอิสระ
+            // คำนวณเปอร์เซ็นต์ความแม่นยำ (Perfect 1st try)
             const readingPercent = Math.round((firstTimeReadingCorrectCount / quizPool.length) * 100);
             const meaningPercent = Math.round((firstTimeMeaningCorrectCount / quizPool.length) * 100);
             
@@ -2863,7 +3033,7 @@
                 else mStats["5+"]++;
             });
 
-            // สร้างตารางสถิติเปรียบเทียบในแถบเดียวกันตามเงื่อนไขใหม่ที่แสนกระชับ
+            // สร้างตารางสรุปผลลัพธ์
             let summaryHtml = `
                 <!-- การ์ดสรุปประวัติผู้เข้าเรียน -->
                 <div class="candidate-card">
@@ -2888,7 +3058,7 @@
                     </div>
                 </div>
 
-                <!-- ตารางเปรียบเทียบในแถบเดียวกันโดยไม่ต้องยืดหลายแถว -->
+                <!-- ตารางเปรียบเทียบในแถบเดียวกัน -->
                 <table class="stat-comp-table">
                     <thead>
                         <tr>
@@ -2943,11 +3113,11 @@
                 tableBody.appendChild(row);
             });
 
-            // บันทึกประวัติสถิติสะสมลงเครื่องด้วย LocalStorage
+            // บันทึกสถิติ
             const sessionLog = {
                 userName: quizUserName,
                 dateTime: formattedDateTime,
-                rawDate: now.toDateString(), // ใช้จัดกลุ่มรายวันได้
+                rawDate: now.toDateString(),
                 duration: formattedDuration,
                 rangeText: `ตัวที่ ${startRange} - ${endRange}`,
                 kanjisCount: totalTested,
@@ -2960,18 +3130,21 @@
         // บันทึกและวิเคราะห์ประวัติสะสม
         function saveHistory(sessionLog) {
             let history = JSON.parse(localStorage.getItem('jft_kanji_history') || '[]');
-            history.unshift(sessionLog); // เพิ่มในลำดับบนสุด
+            history.unshift(sessionLog);
             localStorage.setItem('jft_kanji_history', JSON.stringify(history));
         }
 
-        // ล้างข้อมูลและถามคำถามยืนยันสิทธิ์ความปลอดภัย
+        // ล้างข้อมูลและแสดงคำถามยืนยันสิทธิ์ความปลอดภัย (Custom Modal)
         function confirmAndClearHistory() {
-            const isConfirmed = confirm("คุณแน่ใจหรือไม่ที่ต้องการจะลบ?");
-            if (isConfirmed) {
-                localStorage.removeItem('jft_kanji_history');
-                showToast("ล้างประวัติบันทึกข้อมูลเรียบร้อยแล้ว", "success");
-                renderHistoryPage(); // รีเฟรชหน้าตาประวัติทันที
-            }
+            showCustomConfirm(
+                "ล้างประวัติบันทึก", 
+                "คุณแน่ใจหรือไม่ที่ต้องการจะลบประวัติการเรียนรู้ทั้งหมด? ข้อมูลบันทึกก่อนหน้าจะหายไปอย่างถาวรและไม่สามารถกู้คืนได้",
+                function() {
+                    localStorage.removeItem('jft_kanji_history');
+                    showToast("ล้างประวัติบันทึกข้อมูลเรียบร้อยแล้ว", "success");
+                    renderHistoryPage();
+                }
+            );
         }
 
         // จัดการหน้าตาแสดงผลข้อมูลประวัติ
@@ -3009,7 +3182,7 @@
             // 2. เติมรายการบันทึกรายรอบ
             logsContainer.innerHTML = '';
             if (practicesCount === 0) {
-                logsContainer.innerHTML = '<div class="no-data">ควิซยังว่างเปล่า เริ่มต้นทำแบบทดสอบเพื่อเก็บประวัติความก้าวหน้ารายวันได้เลยครับ</div>';
+                logsContainer.innerHTML = '<div class="no-data">ประวัติบันทึกยังคงว่างเปล่า เริ่มต้นทำแบบทดสอบเพื่อสะสมพัฒนาการได้เลยครับ</div>';
                 return;
             }
 
@@ -3037,10 +3210,12 @@
         }
 
         function resetQuizView() {
+            isQuizPlaying = false;
+            updateNavVisuals();
             document.getElementById('quiz-setup').style.display = 'block';
             document.getElementById('quiz-play').style.display = 'none';
             document.getElementById('quiz-result').style.display = 'none';
-            initSetupRanges(); // โหลดเตรียมความพร้อมของแผงเลือกช่วงใหม่
+            initSetupRanges();
         }
 
         // เริ่มรันระบบต่างๆ เมื่อเอกสารดาวน์โหลดสมบูรณ์
@@ -3048,7 +3223,7 @@
             renderKanjiList();
             initSetupRanges();
             
-            // ดักระบบกดส่งคำตอบด้วยแป้นพิมพ์เสร็จสิ้น (ปุ่ม Enter)
+            // ดักระบบกดส่งคำตอบด้วยแป้นพิมพ์ Enter
             document.getElementById('quiz-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     handleQuizAction();
@@ -3058,3 +3233,4 @@
     </script>
 </body>
 </html>
+
